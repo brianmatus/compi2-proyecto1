@@ -1,4 +1,4 @@
-class LexicError:
+class LexicError(Exception):
 
     def __init__(self, reason: str, row: int, column: int):
         self.reason = reason

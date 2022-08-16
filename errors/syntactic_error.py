@@ -1,4 +1,4 @@
-class SyntacticError:
+class SyntacticError(Exception):
 
     def __init__(self, reason: str, row: int, column: int):
         self.reason = reason

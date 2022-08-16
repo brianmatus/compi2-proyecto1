@@ -3,8 +3,7 @@ from elements.env import Environment
 from elements.value_tuple import ValueTuple
 from elements.element_type import ElementType
 from elements.ast_return import ASTReturn
-import main
-
+import global_config
 
 class Literal(Expression):
 
@@ -17,11 +16,11 @@ class Literal(Expression):
         return ValueTuple(value=self.value, _type=self._type)
 
     def ast(self) -> ASTReturn:
-        father_ref = main.get_unique_number()
-        value_ref = main.get_unique_number()
+        father_ref = global_config.get_unique_number()
+        value_ref = global_config.get_unique_number()
 
-        value = f'${father_ref}[label="LITERAL\\n{self._type.name}"]\n' \
-                f'{value_ref}[label="{self.value}]\n' \
+        value = f'{father_ref}[label="LITERAL\\n{self._type.name}"]\n' \
+                f'{value_ref}[label="{self.value}"]\n' \
                 f'{father_ref} -> {value_ref}\n'
 
         return ASTReturn(value=value, head_ref=father_ref)

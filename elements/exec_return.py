@@ -2,7 +2,7 @@ from elements.env import Environment
 from elements.element_type import ElementType
 
 
-class ASTReturn:
+class ExecReturn:
     def __init__(self, _type: ElementType, value,
                  propagate_method_return: bool, propagate_break: bool, propagate_continue: bool):
         self.value = value
