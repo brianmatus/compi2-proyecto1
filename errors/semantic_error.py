@@ -1,6 +1,6 @@
 class SemanticError(Exception):
 
-    def __init__(self, reason: str, row: int, column: int):
+    def __init__(self, reason: str, line: int, column: int):
         self.reason = reason
-        self.row = row
+        self.row = line
         self.column = column

@@ -11,29 +11,54 @@ from elements.value_tuple import ValueTuple
 
 class Declaration(Instruction):
 
-    def __init__(self, _id: str, _type: ElementType, expression: Expression, line: int, column: int):
+    def __init__(self, _id: str, _type: ElementType, expression: Expression, is_mutable: bool, line: int, column: int):
         super().__init__(line, column)
         self._id = _id
-        self._type = _type
-        self.expression = expression
-        print(f'Instance of declaration with type {self._type.name}')
+        self._type: ElementType = _type
+        self.expression: Expression = expression
+        self.is_mutable = is_mutable
+
+        if self._type is None:
+            print(f'Instance of declaration with id:{self._id} type:inferred')
+        else:
+            print(f'Instance of declaration with id:{self._id} type:{self._type.name}')
 
     def execute(self, env: Environment) -> ExecReturn:
         expr: ValueTuple
 
-        # TODO Declaration without assignment, using default values  (not possible? idk
-        # if self.expression == None:
+        # Declaration without assignment, using default values  (not possible? idk
+        # if self.expression is None:
         #     match self._type:
         #         case ElementType.INT:
-        #             env.
+        #             env.save_variable(self._id, self._type, 0, self.line, self.column, False)
+        #         case ElementType.FLOAT:
+        #             env.save_variable(self._id, self._type, float(0.0), self.line, self.column, False)
+        #         case ElementType.BOOL:
+        #             env.save_variable(self._id, self._type, False, self.line, self.column, False)
+
+        # Using not_init instead
+        if self.expression is None:
+            env.save_variable(self._id, self._type, None,
+                              is_mutable=self.is_mutable, is_init=False, is_array=False,
+                              line=self.line, column=self.column,)
+
+            return ExecReturn(ElementType.BOOL, True, False, False, False)
 
         expr: ValueTuple = self.expression.execute(env)
 
-        # Check same type (exception is char var_type with str expr)
-        if (expr._type == self._type) or (self._type == ElementType.CHAR and expr._type == ElementType.STRING_PRIMITIVE):
-            env.save_variable(self._id, self._type, expr.value, self.line, self.column, False)
-            return ExecReturn(value=True, _type=ElementType.BOOL,
-                              propagate_method_return=False, propagate_continue=False, propagate_break=False)
+        # Infer if not explicitly specified
+        if self._type is None:
+            self._type = expr._type
+
+        # Check same type (exception is char var_type with str expr_type)
+        if (expr._type == self._type) or\
+                (self._type == ElementType.CHAR and expr._type == ElementType.STRING_PRIMITIVE):
+
+            env.save_variable(self._id, self._type, expr.value,
+                              is_mutable=self.is_mutable, is_init=True, is_array=False,
+                              line=self.line, column=self.column, )
+
+            return ExecReturn(self._type, True, False, False, False)
 
         # Error:
         error_msg = f'Asignacion de tipo {expr._type.name} a variable  {self._id} de tipo {self._type.name}'
@@ -43,7 +68,13 @@ class Declaration(Instruction):
     def ast(self) -> ASTReturn:
         father_ref = global_config.get_unique_number()
         id_ref = global_config.get_unique_number()
-        result: str = f'{father_ref}[label="DECLARATION\\n{self._type.name}"]\n' \
+        the_type: str
+        if self._type is None:
+            the_type = "Inferred"
+        else:
+            the_type = self._type.name
+
+        result: str = f'{father_ref}[label="DECLARATION\\n{the_type}"]\n' \
                       f'{id_ref}[label={self._id}]\n' \
                       f'{father_ref} -> {id_ref}\n'
 

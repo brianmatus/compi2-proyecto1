@@ -1,1 +1,2 @@
-let mut x : i64 = 11+2-3*2;
+let mut a : i64 = 3+5*2;
+let mut b : bool = true && (true && 5<11 && !true);

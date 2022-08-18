@@ -7,25 +7,34 @@ from instructions.declaration import Declaration
 from expressions.literal import Literal
 from elements.arithmetic_type import ArithmeticType
 from expressions.arithmetic import Arithmetic
+from elements.logic_type import LogicType
+from expressions.logic import Logic
 
 
 from analysis.lexer import tokens
+start = 'marian'
 
 precedence = (
+
+    ('left', 'LOGIC_OR'),
+    ('left', 'LOGIC_AND'),
+    # needs parenthesis according to rust
+    ('nonassoc', 'OPE_EQUAL', 'OPE_NEQUAL', 'OPE_LESS', 'OPE_MORE', 'OPE_LESS_EQUAL', 'OPE_MORE_EQUAL'),
     ('left', 'SUB', 'SUM'),
-    ('left', 'MULT', 'DIV'),
-    ('right', 'UMINUS'),
+    ('left', 'MULT', 'DIV', 'MOD'),
+    ('nonassoc', 'UMINUS', "LOGIC_NOT"),  # nonassoc according to rust, i think 'right'
+
 )
 
 
-def p_matus(p):
-    """matus : instructions"""
+def p_marian(p):  # M&B ♥
+    """marian : instructions"""
     p[0] = p[1]
 
 
 def p_instructions_rec(p):
     """instructions : instructions instruction"""
-    p[0] = p[1].append(p[2])
+    p[0] = p[1] + [p[2]]
 
 
 def p_instructions(p):
@@ -38,9 +47,25 @@ def p_instruction(p):
     p[0] = p[1]
 
 
+#############################################SIMPLE VARIABLE DECLARATION ###############################################
 def p_var_declaration_1(p):
     """var_declaration : LET MUTABLE ID COLON variable_type EQUAL expression SEMICOLON"""
-    p[0] = Declaration(p[3], p[5], p[7], p.lineno(1), -1)
+    p[0] = Declaration(p[3], p[5], p[7], True, p.lineno(1), -1)
+
+
+def p_var_declaration_2(p):
+    """var_declaration : LET MUTABLE ID EQUAL expression SEMICOLON"""
+    p[0] = Declaration(p[3], None, p[5], True, p.lineno(1), -1)
+
+
+def p_var_declaration_3(p):
+    """var_declaration : LET ID COLON variable_type EQUAL expression SEMICOLON"""
+    p[0] = Declaration(p[2], p[4], p[6], False, p.lineno(1), -1)
+
+
+def p_var_declaration_4(p):
+    """var_declaration : LET ID EQUAL expression SEMICOLON"""
+    p[0] = Declaration(p[2], None, p[4], False, p.lineno(1), -1)
 
 
 #######################################################################################################################
@@ -65,7 +90,7 @@ def p_variable_type_char(p):
 
 
 def p_variable_type_amper_str(p):
-    """variable_type : TYPE_AMPER_STR"""
+    """variable_type : AMPERSAND TYPE_AMPER_STR"""
     p[0] = ElementType.STRING_PRIMITIVE
 
 
@@ -81,6 +106,37 @@ def p_variable_type_string(p):
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
+
+
+def p_expression_integer(p):
+    """expression : INTEGER"""
+    p[0] = Literal(p[1], ElementType.INT, p.lineno(1), -1)
+    # print(p.lexpos(1))
+
+
+def p_expression_float(p):
+    """expression : FLOAT"""
+    p[0] = Literal(p[1], ElementType.FLOAT, p.lineno(1), -1)
+
+
+def p_expression_string(p):
+    """expression : STRING_TEXT"""
+    p[0] = Literal(p[1], ElementType.STRING_PRIMITIVE, p.lineno(1), -1)
+
+
+def p_expression_char(p):
+    """expression : CHAR"""
+    p[0] = Literal(p[1], ElementType.CHAR, p.lineno(1), -1)
+
+
+def p_expression_true(p):
+    """expression : BOOL_TRUE"""
+    p[0] = Literal(True, ElementType.BOOL, p.lineno(1), -1)
+
+
+def p_expression_false(p):
+    """expression : BOOL_FALSE"""
+    p[0] = Literal(False, ElementType.BOOL, p.lineno(1), -1)
 
 
 def p_expression_plus(p):
@@ -118,15 +174,52 @@ def p_expression_parenthesis(p):
     p[0] = p[2]
 
 
-def p_expression_integer(p):
-    """expression : INTEGER"""
-    p[0] = Literal(p[1], ElementType.INT, p.lineno(1), -1)
-    # print(p.lexpos(1))
+# RELATIONAL
+
+def p_expression_ope_equal(p):
+    """expression : expression OPE_EQUAL expression"""
+    p[0] = Logic(p[1], p[3], LogicType.OPE_EQUAL, p.lineno(1), -1)
 
 
-def p_expression_float(p):
-    """expression : FLOAT"""
-    p[0] = Literal(p[1], ElementType.FLOAT, p.lineno(1), -1)
+def p_expression_ope_nequal(p):
+    """expression : expression OPE_NEQUAL expression"""
+    p[0] = Logic(p[1], p[3], LogicType.OPE_NEQUAL, p.lineno(1), -1)
+
+
+def p_expression_ope_less(p):
+    """expression : expression OPE_LESS expression"""
+    p[0] = Logic(p[1], p[3], LogicType.OPE_LESS, p.lineno(1), -1)
+
+
+def p_expression_ope_less_equal(p):
+    """expression : expression OPE_LESS_EQUAL expression"""
+    p[0] = Logic(p[1], p[3], LogicType.OPE_LESS_EQUAL, p.lineno(1), -1)
+
+
+def p_expression_ope_more(p):
+    """expression : expression OPE_MORE expression"""
+    p[0] = Logic(p[1], p[3], LogicType.OPE_MORE, p.lineno(1), -1)
+
+
+def p_expression_ope_more_equal(p):
+    """expression : expression OPE_MORE_EQUAL expression"""
+    p[0] = Logic(p[1], p[3], LogicType.OPE_MORE_EQUAL, p.lineno(1), -1)
+
+
+# LOGICAL
+def p_expression_logic_or(p):
+    """expression : expression LOGIC_OR expression"""
+    p[0] = Logic(p[1], p[3], LogicType.LOGIC_OR, p.lineno(1), -1)
+
+
+def p_expression_logic_and(p):
+    """expression : expression LOGIC_AND expression"""
+    p[0] = Logic(p[1], p[3], LogicType.LOGIC_AND, p.lineno(1), -1)
+
+
+def p_expression_logic_not(p):
+    """expression : LOGIC_NOT expression"""
+    p[0] = Logic(p[2], p[2], LogicType.LOGIC_NOT, p.lineno(1), -1)
 
 
 def p_error(p):

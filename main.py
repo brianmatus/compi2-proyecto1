@@ -85,10 +85,10 @@ def parse_code(code_string: str) -> ParseResult:
         print(main_environment)
         print("Resulting function list:")
         # print(function_list)
-        print("Resulting console output:")
-        print(console_output)
         print("Resulting symbol table:")
         print(generate_symbol_table(instruction_set, "Main"))
+        print("Resulting console output:")
+        print(console_output)
 
     except Exception as err:
         traceback.print_exc()

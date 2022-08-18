@@ -11,10 +11,11 @@ class Environment:
     def __init__(self, parent_environment):
 
         self.parent_environment: Environment = parent_environment
-        self.symbol_table:dict = {}
+        self.symbol_table: dict = {}
         self.children_environment = []
 
-    def save_variable(self, _id: str, _type: ElementType, value, line: int, column: int, is_array: bool):
+    def save_variable(self, _id: str, _type: ElementType, value, is_mutable: bool, is_init: bool, is_array: bool,
+                      line: int, column: int):
         the_symbol: Union[Symbol, None]
 
         if global_config.ALLOW_NESTED_VARIABLE_OVERRIDE:
@@ -25,7 +26,7 @@ class Environment:
                             + global_config.ALLOW_NESTED_VARIABLE_OVERRIDE
 
                 global_config.log_semantic_error(error_msg, line, column)
-                raise Exception(error_msg)
+                raise errors.semantic_error.SemanticError(error_msg, line, column)
 
         else:
             the_symbol = self.recursive_get(_id)
@@ -36,27 +37,37 @@ class Environment:
                 global_config.log_semantic_error(error_msg, line, column)
                 raise Exception(error_msg)
 
-        self.symbol_table[_id] = Symbol(value, _id, _type, is_array)
+        self.symbol_table[_id] = Symbol(_id, _type, value, is_init, is_mutable, is_array)
 
     def set_variable(self, _id: str, result: ValueTuple, line: int, column: int):
         the_symbol: Symbol = self.recursive_get(_id)
 
+        # Non-existing check
         if the_symbol is None:
             error_msg = f'Variable {_id} no esta definida en el ambito actual'
             global_config.log_semantic_error(error_msg, line, column)
             raise errors.semantic_error.SemanticError(error_msg, line, column)
 
-        if the_symbol._type != result._type:
-            error_msg = f'Variable {_id} de tipo {the_symbol._type.name} no puede ser asignada valord e tipo {result._type.name}'
+        # "Mutable"(const) check
+        if not the_symbol.is_mutable and the_symbol.is_init:
+            error_msg = f'Variable {_id} es constante y no puede ser asignado un valor nuevo'
             global_config.log_semantic_error(error_msg, line, column)
             raise errors.semantic_error.SemanticError(error_msg, line, column)
 
+        # Type mismatch check
+        if the_symbol._type != result._type:
+            error_msg = f'Variable {_id} de tipo {the_symbol._type.name} no puede ser asignada valor de tipo {result._type.name}'
+            global_config.log_semantic_error(error_msg, line, column)
+            raise errors.semantic_error.SemanticError(error_msg, line, column)
+
+        # Allowed
         the_symbol.value = result.value
+        the_symbol.is_init = True
 
     # TODO set array variable
 
     def recursive_get(self, _id: str) -> Union[Symbol, None]:
-        if self.symbol_table.get(_id is not None):
+        if self.symbol_table.get(_id) is not None:
             return self.symbol_table.get(_id)
 
         # hit top
