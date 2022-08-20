@@ -3,6 +3,8 @@ import ply.yacc as yacc
 from elements.element_type import ElementType
 
 from instructions.declaration import Declaration
+from instructions.array_declaration import ArrayDeclaration
+
 
 from expressions.literal import Literal
 from elements.arithmetic_type import ArithmeticType
@@ -67,6 +69,26 @@ def p_var_declaration_4(p):
     """var_declaration : LET ID EQUAL expression SEMICOLON"""
     p[0] = Declaration(p[2], None, p[4], False, p.lineno(1), -1)
 
+
+#############################################ARRAY VARIABLE DECLARATION ###############################################
+def p_array_declaration_1(p):
+    """array_declaration : LET MUTABLE ID COLON array_type EQUALS expression SEMICOLON"""
+    p[0] = ArrayDeclaration(p[3], p[5], p[7], True, p.lineno(1), -1)
+
+
+def p_array_declaration_2(p):
+    """array_declaration : LET MUTABLE ID COLON array_type SEMICOLON"""
+    p[0] = ArrayDeclaration(p[3], p[5], None, True, p.lineno(1), -1)
+
+
+def p_array_declaration_3(p):
+    """array_declaration : LET ID COLON array_type EQUALS expression SEMICOLON"""
+    p[0] = ArrayDeclaration(p[2], p[4], p[6], False, p.lineno(1), -1)
+
+
+def p_array_declaration_4(p):
+    """array_declaration : LET ID COLON array_type SEMICOLON"""
+    p[0] = ArrayDeclaration(p[2], p[4], None, False, p.lineno(1), -1)
 
 #######################################################################################################################
 def p_variable_type_i64(p):
@@ -223,8 +245,29 @@ def p_expression_logic_not(p):
 
 
 def p_error(p):
-    print("syntactic error")
+    print("Syntax error::Unexpected token")
     print(p)
 
 
 parser = yacc.yacc()  # los increibles
+
+#
+#                                        (                          )
+#                                         \                        /
+#                                        ,' ,__,___,__,-._         )
+#                                        )-' ,    ,  , , (        /
+#                                        ;'"-^-.,-''"""\' \       )
+#                                       (      (        ) /  __  /
+#                                        \o,----.  o  _,'( ,.^. \
+#                                        ,'`.__  `---'    `\ \ \ \_
+#                                 ,.,. ,'                   \    ' )
+#                                 \ \ \\__  ,------------.  /     /
+# UN COMPILADOR NO TERMINADO     ( \ \ \( `---.-`-^--,-,--\:     :
+#                                 \       (   (""""""`----'|     :
+#                                  \   `.  \   `.          |      \
+#                                   \   ;  ;     )      __ _\      \
+#                                   /     /    ,-.,-.'"Y  Y  \      `.
+#                                  /     :    ,`-'`-'`-'`-'`-'\       `.
+#                                 /      ;  ,'  /              \        `
+#                                /      / ,'   /                \
+

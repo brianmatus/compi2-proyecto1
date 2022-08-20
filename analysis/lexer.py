@@ -68,6 +68,9 @@ t_LOGIC_NOT = r'!'
 
 t_PARENTH_O = r'\('
 t_PARENTH_C = r'\)'
+t_BRACKET_O = r'\['
+t_BRACKET_C = r'\]'
+
 t_SEMICOLON = r';'
 t_COLON = r':'
 t_COMMA = r','
