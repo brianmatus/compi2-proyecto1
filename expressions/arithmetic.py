@@ -1,9 +1,9 @@
 from expressions.expression import Expression
 from elements.env import Environment
 from elements.value_tuple import ValueTuple
-from elements.element_type import ElementType
-from elements.ast_return import ASTReturn
-from elements.arithmetic_type import ArithmeticType
+from types.element_type import ElementType
+from returns.ast_return import ASTReturn
+from types.arithmetic_type import ArithmeticType
 
 import global_config
 

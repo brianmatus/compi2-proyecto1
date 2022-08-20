@@ -1,16 +1,12 @@
 from typing import Union
 
-from elements.ast_return import ASTReturn
-from elements.exec_return import ExecReturn
+from returns.exec_return import ExecReturn
 from instructions.instruction import Instruction
 from expressions.expression import Expression
 
-from elements.element_type import ElementType
 from elements.env import Environment
 
-from global_config import get_unique_number, log_semantic_error
-
-from elements.array_type import ArrayDefType
+from types.array_type import ArrayDefType
 
 
 class ArrayDeclaration(Instruction):

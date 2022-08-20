@@ -1,19 +1,17 @@
 import ply.yacc as yacc
 
-from elements.element_type import ElementType
+from types.element_type import ElementType
 
 from instructions.declaration import Declaration
 from instructions.array_declaration import ArrayDeclaration
 
 
 from expressions.literal import Literal
-from elements.arithmetic_type import ArithmeticType
+from types.arithmetic_type import ArithmeticType
 from expressions.arithmetic import Arithmetic
-from elements.logic_type import LogicType
+from types.logic_type import LogicType
 from expressions.logic import Logic
 
-
-from analysis.lexer import tokens
 start = 'marian'
 
 precedence = (

@@ -1,12 +1,11 @@
 import errors.semantic_error
-import global_config
 from expressions.expression import Expression
 from elements.env import Environment
 from elements.value_tuple import ValueTuple
-from elements.element_type import ElementType
-from elements.ast_return import ASTReturn
+from types.element_type import ElementType
+from returns.ast_return import ASTReturn
 
-from elements.logic_type import LogicType
+from types.logic_type import LogicType
 import global_config
 
 

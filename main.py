@@ -1,11 +1,10 @@
 import traceback
 
 
-from typing import List, Dict
+from typing import List
 
 import errors.custom_semantic
-from elements.element_type import ElementType
-from elements.parse_result import ParseResult
+from returns.parse_result import ParseResult
 from analysis.parser import parser
 
 from instructions.instruction import Instruction

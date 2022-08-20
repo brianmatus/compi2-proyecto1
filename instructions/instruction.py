@@ -1,7 +1,6 @@
 from elements.env import Environment
-from elements.element_type import ElementType
-from elements.exec_return import ExecReturn
-from elements.ast_return import ASTReturn
+from returns.exec_return import ExecReturn
+from returns.ast_return import ASTReturn
 
 
 class Instruction:

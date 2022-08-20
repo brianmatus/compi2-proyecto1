@@ -1,5 +1,4 @@
-from elements.env import Environment
-from elements.element_type import ElementType
+from types.element_type import ElementType
 
 
 class ExecReturn:

@@ -3,7 +3,7 @@ from typing import Union
 import errors.semantic_error
 import global_config
 from elements.symbol import Symbol
-from elements.element_type import ElementType
+from types.element_type import ElementType
 from elements.value_tuple import ValueTuple
 
 
