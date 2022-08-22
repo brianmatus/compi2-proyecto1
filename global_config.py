@@ -1,5 +1,7 @@
 import secrets
-from typing import List, Dict
+from typing import List
+
+from element_types.element_type import ElementType
 
 from errors.lexic_error import LexicError
 from errors.semantic_error import SemanticError
@@ -54,29 +56,22 @@ def random_hex_color_code() -> str:
 
 
 def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:
-
-    print("------------------------------------------------------")
-    print('supposed')
-    print(supposed)
-    print("arr")
-    print(arr)
-
     if not isinstance(arr, list):  # Reached end of array
         if len(supposed) is not 0:  # But chain is not completed
-            print("False: end of array but not chain")
+            # print("False: end of array but not chain")
             return False
-        print("True: end of array and chain")
+        # print("True: end of array and chain")
         return True
 
     else:  # Array is still nested
 
         if len(supposed) is 0:  # But chain is empty
-            print("False:end of chain but not array")
+            # print("False:end of chain but not array")
             return False
         # dont you dare return true :P Keep checking more nested levels
 
     if len(arr) is not supposed[0]:
-        print(f'False: supposed-array mismatch: {len(arr)}->{supposed[0]}')
+        # print(f'False: supposed-array mismatch: {len(arr)}->{supposed[0]}')
         return False
 
     index = supposed.pop(0)
@@ -84,7 +79,24 @@ def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:
     for i in range(index):
         r: bool = match_dimensions(supposed[:], arr[i].value)
         if not r:
-            print(f'False:{i}th child returned False')
+            # print(f'False:{i}th child returned False')
+            return False
+
+    # All children and self returned True
+    return True
+
+
+def match_array_type(supposed: ElementType, arr: List[ValueTuple]) -> bool:
+
+    if not isinstance(arr[0].value, list):  # Reached last array
+        for item in arr:
+            if item._type is not supposed:
+                return False
+        return True
+
+    for i in range(len(arr)):
+        r: bool = match_array_type(supposed, arr[i].value)
+        if not r:
             return False
 
     # All children and self returned True

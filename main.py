@@ -91,9 +91,10 @@ def parse_code(code_string: str) -> ParseResult:
             print("$$$$$$$$$$$$$$$$$$$$$$$$$")
             instruction.execute(main_environment)
 
-        print("Resulting AST:")
-        print(generate_ast_tree(instruction_set))
+        # print("Resulting AST:")
+        # print(generate_ast_tree(instruction_set))
         print("Resulting environment:")
+        env = main_environment  # TODO delete me, debug only
         print(main_environment)
         print("Resulting function list:")
         # print(function_list)

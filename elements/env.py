@@ -3,6 +3,7 @@ from typing import Union
 import errors.semantic_error
 import global_config
 from elements.symbol import Symbol
+from elements.array_symbol import ArraySymbol
 from element_types.element_type import ElementType
 from elements.value_tuple import ValueTuple
 
@@ -37,7 +38,33 @@ class Environment:
                 global_config.log_semantic_error(error_msg, line, column)
                 raise Exception(error_msg)
 
-        self.symbol_table[_id] = Symbol(_id, _type, value, is_init, is_mutable, is_array)
+        self.symbol_table[_id] = Symbol(_id, _type, value, is_init, is_mutable)
+
+    def save_variable_array(self, _id: str, _type: ElementType, dimensions: {}, value, is_mutable: bool, is_init: bool,
+                            line: int, column: int):
+
+        the_symbol: Union[ArraySymbol, None]
+
+        if global_config.ALLOW_NESTED_VARIABLE_OVERRIDE:
+            the_symbol = self.symbol_table.get(_id)
+
+            if the_symbol is not None:
+                error_msg = "Variable <" + _id + "> ya definida en el ambito actual. ALLOW_NESTED_VARIABLE_OVERRIDE="\
+                            + global_config.ALLOW_NESTED_VARIABLE_OVERRIDE
+
+                global_config.log_semantic_error(error_msg, line, column)
+                raise errors.semantic_error.SemanticError(error_msg, line, column)
+
+        else:
+            the_symbol = self.recursive_get(_id)
+            if the_symbol is not None:
+                error_msg = "Variable <" + _id + "> ya definida en el ambito actual. ALLOW_NESTED_VARIABLE_OVERRIDE="\
+                            + global_config.ALLOW_NESTED_VARIABLE_OVERRIDE
+
+                global_config.log_semantic_error(error_msg, line, column)
+                raise Exception(error_msg)
+
+        self.symbol_table[_id] = ArraySymbol(_id, _type, dimensions, value, is_init, is_mutable)
 
     def set_variable(self, _id: str, result: ValueTuple, line: int, column: int):
         the_symbol: Symbol = self.recursive_get(_id)
