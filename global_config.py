@@ -5,7 +5,7 @@ from errors.lexic_error import LexicError
 from errors.semantic_error import SemanticError
 from errors.syntactic_error import SyntacticError
 
-
+from elements.value_tuple import ValueTuple
 lexic_error_list: List[LexicError] = []
 syntactic_error_list: List[SyntacticError] = []
 semantic_error_list: List[SemanticError] = []
@@ -52,3 +52,40 @@ def get_unique_number() -> int:
 def random_hex_color_code() -> str:
     return "#" + secrets.token_hex(2)
 
+
+def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:
+
+    print("------------------------------------------------------")
+    print('supposed')
+    print(supposed)
+    print("arr")
+    print(arr)
+
+    if not isinstance(arr, list):  # Reached end of array
+        if len(supposed) is not 0:  # But chain is not completed
+            print("False: end of array but not chain")
+            return False
+        print("True: end of array and chain")
+        return True
+
+    else:  # Array is still nested
+
+        if len(supposed) is 0:  # But chain is empty
+            print("False:end of chain but not array")
+            return False
+        # dont you dare return true :P Keep checking more nested levels
+
+    if len(arr) is not supposed[0]:
+        print(f'False: supposed-array mismatch: {len(arr)}->{supposed[0]}')
+        return False
+
+    index = supposed.pop(0)
+
+    for i in range(index):
+        r: bool = match_dimensions(supposed[:], arr[i].value)
+        if not r:
+            print(f'False:{i}th child returned False')
+            return False
+
+    # All children and self returned True
+    return True

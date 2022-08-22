@@ -1,5 +1,6 @@
 import traceback
 
+import analysis.lexer as lexer # TODO for debug only
 
 from typing import List
 
@@ -33,6 +34,15 @@ def start():  # FIXME this should be replaced with frontend sending the code
 
 
 def parse_code(code_string: str) -> ParseResult:
+    # Debug tokenizer
+    # lexer.lexer.input(code_string)
+    # # Tokenize
+    # while True:
+    #     tok = lexer.lexer.token()
+    #     if not tok:
+    #         return
+    #     print(tok)
+
     lexic_error_list = []
     syntactic_error_list = []
     semantic_error_list = []
@@ -70,6 +80,9 @@ def parse_code(code_string: str) -> ParseResult:
     print("#############################################################################")
     print("#############################################################################")
     print("#############################################################################")
+
+
+    print(instruction_set)
 
     try:
         instruction: Instruction

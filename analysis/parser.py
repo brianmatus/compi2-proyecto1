@@ -1,18 +1,26 @@
 import ply.yacc as yacc
+import analysis.lexer as lexer
 
-from types.element_type import ElementType
+from element_types.element_type import ElementType
 
 from instructions.declaration import Declaration
 from instructions.array_declaration import ArrayDeclaration
+from element_types.array_def_type import ArrayDefType
+from expressions.array_expression import ArrayExpression
 
 
 from expressions.literal import Literal
-from types.arithmetic_type import ArithmeticType
+from element_types.arithmetic_type import ArithmeticType
 from expressions.arithmetic import Arithmetic
-from types.logic_type import LogicType
+from element_types.logic_type import LogicType
 from expressions.logic import Logic
 
+tokens = lexer.tokens
+
+
 start = 'marian'
+
+# start = 'array_type'
 
 precedence = (
 
@@ -42,8 +50,9 @@ def p_instructions(p):
     p[0] = [p[1]]
 
 
-def p_instruction(p):
-    """instruction : var_declaration"""  # since all here are p[0] = p[1] (except void_inst) add all productions here
+def p_instruction(p):   # since all here are p[0] = p[1] (except void_inst) add all productions here
+    """instruction : var_declaration
+    | array_declaration"""
     p[0] = p[1]
 
 
@@ -69,9 +78,10 @@ def p_var_declaration_4(p):
 
 
 #############################################ARRAY VARIABLE DECLARATION ###############################################
-def p_array_declaration_1(p):
-    """array_declaration : LET MUTABLE ID COLON array_type EQUALS expression SEMICOLON"""
+def p_array_declaration_1(p):    # array_expression instead of expression
+    """array_declaration : LET MUTABLE ID COLON array_type EQUAL array_expression SEMICOLON"""
     p[0] = ArrayDeclaration(p[3], p[5], p[7], True, p.lineno(1), -1)
+    print("p_array_declaration_1")
 
 
 def p_array_declaration_2(p):
@@ -80,7 +90,7 @@ def p_array_declaration_2(p):
 
 
 def p_array_declaration_3(p):
-    """array_declaration : LET ID COLON array_type EQUALS expression SEMICOLON"""
+    """array_declaration : LET ID COLON array_type EQUAL array_expression SEMICOLON"""
     p[0] = ArrayDeclaration(p[2], p[4], p[6], False, p.lineno(1), -1)
 
 
@@ -88,7 +98,52 @@ def p_array_declaration_4(p):
     """array_declaration : LET ID COLON array_type SEMICOLON"""
     p[0] = ArrayDeclaration(p[2], p[4], None, False, p.lineno(1), -1)
 
+
+#####################################################
+
+def p_array_type_r(p):
+    """array_type : BRACKET_O array_type SEMICOLON expression BRACKET_C"""
+    p[0] = ArrayDefType(True, p[2], p[4])
+    print("p_array_type_r")
+
+
+def p_array_type(p):
+    """array_type : BRACKET_O variable_type SEMICOLON expression BRACKET_C"""
+    p[0] = ArrayDefType(False, p[2], p[4])
+    print("p_array_type")
+
+
+########################################
+
+def p_array_expression_list(p):
+    """array_expression : BRACKET_O expression_list BRACKET_C"""
+    p[0] = ArrayExpression(p[2], False, None, p.lineno(1), -1)
+    print("p_array_expression_list")
+
+
+def p_array_expression_expansion(p):
+    """array_expression : BRACKET_O expression SEMICOLON expression BRACKET_C"""
+    p[0] = ArrayExpression(p[2], True, p[4], p.lineno(1), -1)
+    print("p_array_expression_expansion")
+
+
+def p_expression_list_r(p):
+    """expression_list : expression_list COMMA expression
+    | expression_list COMMA array_expression"""
+    p[1].append(p[3])
+    p[0] = p[1]
+    print("p_expression_list_r")
+
+
+def p_expression_list(p):
+    """expression_list : expression
+    | array_expression"""
+    p[0] = [p[1]]
+    print("p_expression_list")
+
 #######################################################################################################################
+
+
 def p_variable_type_i64(p):
     """variable_type : TYPE_I64"""
     p[0] = ElementType.INT
@@ -245,6 +300,9 @@ def p_expression_logic_not(p):
 def p_error(p):
     print("Syntax error::Unexpected token")
     print(p)
+
+    print(f"next token is {parser.token()}")
+    print(f"2nd next token is {parser.token()}")
 
 
 parser = yacc.yacc()  # los increibles

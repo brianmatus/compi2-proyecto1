@@ -3,7 +3,7 @@ from returns.exec_return import ExecReturn
 from returns.ast_return import ASTReturn
 from elements.env import Environment
 from expressions.expression import Expression
-from types.element_type import ElementType
+from element_types.element_type import ElementType
 
 from main import get_unique_number
 

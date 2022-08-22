@@ -8,6 +8,7 @@ ElementType = Enum('ElementType',
                   'CHAR',
                   'STRING_PRIMITIVE',  # literal
                   'STRING_CLASS',  # class (using .to_owned() or .to_string()
+                  'ARRAY_EXPRESSION',  # only used internally
                   'EQUAL',
                   'OPE_EQUAL',
                   'OPE_NEQUAL',

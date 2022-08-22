@@ -2,10 +2,10 @@ import errors.semantic_error
 from expressions.expression import Expression
 from elements.env import Environment
 from elements.value_tuple import ValueTuple
-from types.element_type import ElementType
+from element_types.element_type import ElementType
 from returns.ast_return import ASTReturn
 
-from types.logic_type import LogicType
+from element_types.logic_type import LogicType
 import global_config
 
 

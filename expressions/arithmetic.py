@@ -1,9 +1,10 @@
+import errors.semantic_error
 from expressions.expression import Expression
 from elements.env import Environment
 from elements.value_tuple import ValueTuple
-from types.element_type import ElementType
+from element_types.element_type import ElementType
 from returns.ast_return import ASTReturn
-from types.arithmetic_type import ArithmeticType
+from element_types.arithmetic_type import ArithmeticType
 
 import global_config
 
@@ -45,7 +46,7 @@ class Arithmetic(Expression):
 
                 error_msg = f"Operacion Aritmetica SUMA {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
-                raise Exception(error_msg)
+                raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
 
             case ArithmeticType.SUB:
                 # INT
@@ -57,7 +58,7 @@ class Arithmetic(Expression):
 
                 error_msg = f"Operacion Aritmetica RESTA {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
-                raise Exception(error_msg)
+                raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
 
             case ArithmeticType.MULT:
                 # INT
@@ -69,7 +70,7 @@ class Arithmetic(Expression):
 
                 error_msg = f"Operacion Aritmetica MULTIPLICACION {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
-                raise Exception(error_msg)
+                raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
 
             case ArithmeticType.DIV:
                 # INT
@@ -81,7 +82,7 @@ class Arithmetic(Expression):
 
                 error_msg = f"Operacion Aritmetica DIVISION {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
-                raise Exception(error_msg)
+                raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
 
             case ArithmeticType.MOD:
                 # INT
@@ -93,7 +94,7 @@ class Arithmetic(Expression):
 
                 error_msg = f"Operacion Aritmetica MODULAR {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
-                raise Exception(error_msg)
+                raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
 
             case ArithmeticType.NEG:
 
@@ -106,7 +107,7 @@ class Arithmetic(Expression):
 
                 error_msg = f"Operacion Aritmetica MODULAR {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
-                raise Exception(error_msg)
+                raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
 
             case _:
                 print("ERROR??? Unknown arithmetic type?")

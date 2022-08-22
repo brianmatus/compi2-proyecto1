@@ -3,7 +3,7 @@ import global_config
 from instructions.instruction import Instruction
 from returns.ast_return import ASTReturn
 from returns.exec_return import ExecReturn
-from types.element_type import ElementType
+from element_types.element_type import ElementType
 from elements.env import Environment
 from expressions.expression import Expression
 from elements.value_tuple import ValueTuple

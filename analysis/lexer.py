@@ -40,13 +40,13 @@ tokens = [
     'COMMA',
     'EQUAL',
     'PARENTH_O',
-    'PARENTH_C',  # TODO here
+    'PARENTH_C',
     'BRACKET_O',
     'BRACKET_C',
 ] + list(reserved.values())
 
 
-t_ignore = '[\t ]'
+t_ignore = '\t '
 
 t_SUM = r'\+'
 t_SUB = r'\-'
@@ -70,6 +70,7 @@ t_PARENTH_O = r'\('
 t_PARENTH_C = r'\)'
 t_BRACKET_O = r'\['
 t_BRACKET_C = r'\]'
+
 
 t_SEMICOLON = r';'
 t_COLON = r':'
@@ -119,6 +120,9 @@ def t_newline(t):
     r"""\n+"""
     t.lexer.lineno += t.value.count('\n')
 
+
+def t_eof(t):
+    return None
 
 def t_error(t):
     print(f'LEX: Illegal character {t.value[0]!r} line:{t.lexer.lineno} column:{find_column(t)}')
