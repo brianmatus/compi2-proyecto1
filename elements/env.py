@@ -1,6 +1,6 @@
 from typing import Union
 
-import errors.semantic_error
+from errors.semantic_error import SemanticError
 import global_config
 from elements.symbol import Symbol
 from elements.array_symbol import ArraySymbol
@@ -27,7 +27,7 @@ class Environment:
                             + global_config.ALLOW_NESTED_VARIABLE_OVERRIDE
 
                 global_config.log_semantic_error(error_msg, line, column)
-                raise errors.semantic_error.SemanticError(error_msg, line, column)
+                raise SemanticError(error_msg, line, column)
 
         else:
             the_symbol = self.recursive_get(_id)
@@ -53,7 +53,7 @@ class Environment:
                             + global_config.ALLOW_NESTED_VARIABLE_OVERRIDE
 
                 global_config.log_semantic_error(error_msg, line, column)
-                raise errors.semantic_error.SemanticError(error_msg, line, column)
+                raise SemanticError(error_msg, line, column)
 
         else:
             the_symbol = self.recursive_get(_id)
@@ -73,19 +73,19 @@ class Environment:
         if the_symbol is None:
             error_msg = f'Variable {_id} no esta definida en el ambito actual'
             global_config.log_semantic_error(error_msg, line, column)
-            raise errors.semantic_error.SemanticError(error_msg, line, column)
+            raise SemanticError(error_msg, line, column)
 
         # "Mutable"(const) check
         if not the_symbol.is_mutable and the_symbol.is_init:
             error_msg = f'Variable {_id} es constante y no puede ser asignado un valor nuevo'
             global_config.log_semantic_error(error_msg, line, column)
-            raise errors.semantic_error.SemanticError(error_msg, line, column)
+            raise SemanticError(error_msg, line, column)
 
         # Type mismatch check
         if the_symbol._type != result._type:
             error_msg = f'Variable {_id} de tipo {the_symbol._type.name} no puede ser asignada valor de tipo {result._type.name}'
             global_config.log_semantic_error(error_msg, line, column)
-            raise errors.semantic_error.SemanticError(error_msg, line, column)
+            raise SemanticError(error_msg, line, column)
 
         # Allowed
         the_symbol.value = result.value
@@ -93,7 +93,7 @@ class Environment:
 
     # TODO set array variable
 
-    def recursive_get(self, _id: str) -> Union[Symbol, None]:
+    def recursive_get(self, _id: str) -> Union[Symbol, ArraySymbol, None]:
         if self.symbol_table.get(_id) is not None:
             return self.symbol_table.get(_id)
 

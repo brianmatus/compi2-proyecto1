@@ -7,6 +7,7 @@ from instructions.declaration import Declaration
 from instructions.array_declaration import ArrayDeclaration
 from element_types.array_def_type import ArrayDefType
 from expressions.array_expression import ArrayExpression
+from instructions.print_ln import PrintLN
 
 
 from expressions.literal import Literal
@@ -14,6 +15,7 @@ from element_types.arithmetic_type import ArithmeticType
 from expressions.arithmetic import Arithmetic
 from element_types.logic_type import LogicType
 from expressions.logic import Logic
+from expressions.variable_ref import VariableReference
 
 tokens = lexer.tokens
 
@@ -31,6 +33,7 @@ precedence = (
     ('left', 'SUB', 'SUM'),
     ('left', 'MULT', 'DIV', 'MOD'),
     ('nonassoc', 'UMINUS', "LOGIC_NOT"),  # nonassoc according to rust, i think 'right'
+    ('nonassoc', 'VAR_REF')
 
 )
 
@@ -50,10 +53,18 @@ def p_instructions(p):
     p[0] = [p[1]]
 
 
-def p_instruction(p):   # since all here are p[0] = p[1] (except void_inst) add all productions here
-    """instruction : var_declaration
-    | array_declaration"""
+def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add all productions here
+    """
+    instruction : var_declaration
+    | array_declaration
+    | println_inst
+    """
     p[0] = p[1]
+
+#############################################PRINTLN####################################################################
+def p_println_inst(p):
+    """println_inst : PRINTLN LOGIC_NOT PARENTH_O expression_list PARENTH_C SEMICOLON"""
+    p[0] = PrintLN(p[4], p.lineno(1), -1)
 
 
 #############################################SIMPLE VARIABLE DECLARATION ###############################################
@@ -99,7 +110,7 @@ def p_array_declaration_4(p):
     p[0] = ArrayDeclaration(p[2], p[4], None, False, p.lineno(1), -1)
 
 
-#####################################################
+########################################
 
 def p_array_type_r(p):
     """array_type : BRACKET_O array_type SEMICOLON expression BRACKET_C"""
@@ -295,6 +306,11 @@ def p_expression_logic_and(p):
 def p_expression_logic_not(p):
     """expression : LOGIC_NOT expression"""
     p[0] = Logic(p[2], p[2], LogicType.LOGIC_NOT, p.lineno(1), -1)
+
+# VAR REF
+def p_var_ref_e(p):
+    """expression : ID %prec VAR_REF"""
+    p[0] = VariableReference(p[1], p.lineno(1), -1)
 
 
 def p_error(p):

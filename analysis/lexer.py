@@ -11,10 +11,12 @@ reserved = {
     'false': 'BOOL_FALSE',
     'char': 'TYPE_CHAR',
     'str': 'TYPE_AMPER_STR',
-    'String': 'TYPE_STRING'
+    'String': 'TYPE_STRING',
+    'println': 'PRINTLN'
 }
 
 tokens = [
+    'COMMENT',
     'SUM',
     'SUB',
     'MULT',
@@ -48,10 +50,16 @@ tokens = [
 
 t_ignore = '\t '
 
+def t_COMMENT(t):
+    r"""//[^\n]*\n"""
+    pass
+
+
+
 t_SUM = r'\+'
 t_SUB = r'\-'
 t_MULT = r'\*'
-t_DIV = r'/'
+t_DIV = r'/(?!/)'
 t_MOD = r'\%'
 
 
@@ -114,6 +122,8 @@ def t_INTEGER(t):
     r"""\d+"""
     t.value = int(t.value)
     return t
+
+
 
 
 def t_newline(t):

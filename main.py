@@ -43,11 +43,13 @@ def parse_code(code_string: str) -> ParseResult:
     #         return
     #     print(tok)
 
+    code_string += "\n"
+
     lexic_error_list = []
     syntactic_error_list = []
     semantic_error_list = []
     # func list
-    console_output = ""
+    global_config.console_output = ""
     global main_environment
 
     try:
@@ -62,7 +64,7 @@ def parse_code(code_string: str) -> ParseResult:
         main_environment = Environment(None)
         return ParseResult(lexic_error_list, syntactic_error_list, semantic_error_list,
                            ast_tree='digraph G {\na[label="PARSE ERROR :( (semantic)"]\n}',
-                           console_output=console_output, symbol_table=[])
+                           console_output=global_config.console_output, symbol_table=[])
 
     except Exception as err:
         print("Unhandled (lexic?)/semantic error?")
@@ -74,7 +76,7 @@ def parse_code(code_string: str) -> ParseResult:
         main_environment = Environment(None)
         return ParseResult(lexic_error_list, syntactic_error_list, semantic_error_list,
                            ast_tree='digraph G {\na[label="PARSE ERROR :( (syntactic)"]\n}',
-                           console_output=console_output, symbol_table=[])
+                           console_output=global_config.console_output, symbol_table=[])
 
     print("#############################################################################")
     print("#############################################################################")
@@ -94,14 +96,14 @@ def parse_code(code_string: str) -> ParseResult:
         # print("Resulting AST:")
         # print(generate_ast_tree(instruction_set))
         print("Resulting environment:")
-        env = main_environment  # TODO delete me, debug only
+        _symbol_table = main_environment.symbol_table  # TODO delete me, debug only
         print(main_environment)
         print("Resulting function list:")
         # print(function_list)
         print("Resulting symbol table:")
         print(generate_symbol_table(instruction_set, "Main"))
         print("Resulting console output:")
-        print(console_output)
+        print(global_config.console_output)
 
     except Exception as err:
         traceback.print_exc()
@@ -125,7 +127,7 @@ def parse_code(code_string: str) -> ParseResult:
         main_environment = Environment(None)
         return ParseResult(lexic_error_list, syntactic_error_list, semantic_error_list,
                            ast_tree=generate_ast_tree(instruction_set),
-                           console_output=console_output,
+                           console_output=global_config.console_output,
                            symbol_table=generate_symbol_table(instruction_set, "Main"))
 
 
@@ -134,13 +136,14 @@ def generate_symbol_table(instruction_set: List[Instruction], env_name: str) -> 
 
 
 def generate_ast_tree(instruction_set: List[Instruction]) -> str:
-    instructions_father_ref = global_config.get_unique_number()
-    ast_tree: str = f'digraph{{\n{instructions_father_ref}[label="Instructions"]\n'
-
-    instructions_ast: str = generate_instruction_set_ast(instruction_set, instructions_father_ref)
-
-    ast_tree += f'{instructions_ast}\n}}'
-    return ast_tree
+    return ""  # TODO this project doesn't require it
+    # instructions_father_ref = global_config.get_unique_number()
+    # ast_tree: str = f'digraph{{\n{instructions_father_ref}[label="Instructions"]\n'
+    #
+    # instructions_ast: str = generate_instruction_set_ast(instruction_set, instructions_father_ref)
+    #
+    # ast_tree += f'{instructions_ast}\n}}'
+    # return ast_tree
 
 
 def generate_instruction_set_ast(instruction_set: List[Instruction], father_ref: int) -> str :
