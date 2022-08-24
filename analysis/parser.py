@@ -16,6 +16,7 @@ from expressions.arithmetic import Arithmetic
 from element_types.logic_type import LogicType
 from expressions.logic import Logic
 from expressions.variable_ref import VariableReference
+from expressions.array_reference import ArrayReference
 
 tokens = lexer.tokens
 
@@ -311,6 +312,22 @@ def p_expression_logic_not(p):
 def p_var_ref_e(p):
     """expression : ID %prec VAR_REF"""
     p[0] = VariableReference(p[1], p.lineno(1), -1)
+
+# ARRAY REF
+
+def p_array_ref(p):
+    """expression : ID array_indexes"""
+    p[0] = ArrayReference(p[1], p[2], p.lineno(1), -1)
+
+def p_array_indexes_r(p):
+    """array_indexes : array_indexes BRACKET_O expression BRACKET_C"""
+    p[1].append(p[3])
+    p[0] = p[1]
+
+def p_array_indexes(p):
+    """array_indexes : BRACKET_O expression BRACKET_C"""
+    p[0] = [p[2]]
+
 
 
 def p_error(p):

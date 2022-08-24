@@ -8,4 +8,4 @@ class ArraySymbol:
         self._type = _type
         self.is_init = is_init
         self.is_mutable = is_mutable
-        self.dimensions = dimensions
+        self.dimensions: {} = dimensions

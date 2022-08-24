@@ -30,7 +30,6 @@ class PrintLN(Instruction):
         _str: Literal = self.expr_list[0]
 
         needed = _str.value.count("{}") + _str.value.count("{:?}")
-        print(f'{needed} needed values to fill')
 
         if needed != len(self.expr_list[1:]):
             error_msg = f'La cantidad de elementos de formato y argumentos obtenidos no es la misma'
@@ -39,13 +38,12 @@ class PrintLN(Instruction):
 
         the_str: str = _str.value
 
-        print(f"str before replacements:{the_str}")
-
         for arg in self.expr_list[1:]:
+            # print("titan")
+            # print(arg)
             the_arg = arg.execute(env)
 
-            print(the_str.find("{}"))
-            print(the_str.find("{:?}"))
+            # print(the_arg)
 
             i1 = the_str.find("{}")  # -1
             i2 = the_str.find("{:?}")  # 4
@@ -54,7 +52,7 @@ class PrintLN(Instruction):
 
             # Arrays
             if isinstance(the_arg.value, list):
-                print("change for array")
+                # print("change for array")
                 if next_is_simple:
                     error_msg = f'{{}} fue dado para una variable que es array'
                     global_config.log_semantic_error(error_msg, self.line, self.column)
@@ -64,6 +62,8 @@ class PrintLN(Instruction):
                 continue
 
             if the_arg._type in [ElementType.INT, ElementType.FLOAT, ElementType.STRING_PRIMITIVE]:
+                # print("change for normal")
+                # print(the_arg)
 
                 if not next_is_simple:
                     error_msg = f'{{:?}} fue dado para una variable que no es array'

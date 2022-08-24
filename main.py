@@ -90,7 +90,7 @@ def parse_code(code_string: str) -> ParseResult:
         instruction: Instruction
         for instruction in instruction_set:
 
-            print("$$$$$$$$$$$$$$$$$$$$$$$$$")
+            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             instruction.execute(main_environment)
 
         # print("Resulting AST:")

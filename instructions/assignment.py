@@ -5,7 +5,7 @@ from elements.env import Environment
 from expressions.expression import Expression
 from element_types.element_type import ElementType
 
-from main import get_unique_number
+from global_config import get_unique_number
 
 class Assigment(Instruction) :
 
