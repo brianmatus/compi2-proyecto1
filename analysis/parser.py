@@ -3,20 +3,22 @@ import analysis.lexer as lexer
 
 from element_types.element_type import ElementType
 
+##########################################################################
+from element_types.array_def_type import ArrayDefType
 from instructions.declaration import Declaration
 from instructions.array_declaration import ArrayDeclaration
-from element_types.array_def_type import ArrayDefType
-from expressions.array_expression import ArrayExpression
 from instructions.print_ln import PrintLN
+from instructions.assignment import Assigment
 
-
-from expressions.literal import Literal
+##########################################################################
 from element_types.arithmetic_type import ArithmeticType
-from expressions.arithmetic import Arithmetic
 from element_types.logic_type import LogicType
+from expressions.literal import Literal
+from expressions.arithmetic import Arithmetic
 from expressions.logic import Logic
 from expressions.variable_ref import VariableReference
 from expressions.array_reference import ArrayReference
+from expressions.array_expression import ArrayExpression
 
 tokens = lexer.tokens
 
@@ -59,16 +61,18 @@ def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add a
     instruction : var_declaration
     | array_declaration
     | println_inst
+    | var_assignment
     """
     p[0] = p[1]
 
-#############################################PRINTLN####################################################################
+
+# ###########################################PRINTLN####################################################################
 def p_println_inst(p):
     """println_inst : PRINTLN LOGIC_NOT PARENTH_O expression_list PARENTH_C SEMICOLON"""
     p[0] = PrintLN(p[4], p.lineno(1), -1)
 
 
-#############################################SIMPLE VARIABLE DECLARATION ###############################################
+# ###########################################SIMPLE VARIABLE DECLARATION ###############################################
 def p_var_declaration_1(p):
     """var_declaration : LET MUTABLE ID COLON variable_type EQUAL expression SEMICOLON"""
     p[0] = Declaration(p[3], p[5], p[7], True, p.lineno(1), -1)
@@ -89,7 +93,13 @@ def p_var_declaration_4(p):
     p[0] = Declaration(p[2], None, p[4], False, p.lineno(1), -1)
 
 
-#############################################ARRAY VARIABLE DECLARATION ###############################################
+# ###########################################VARIABLE ASSIGNMENT ###############################################
+def p_var_assignment(p):
+    """var_assignment : ID EQUAL expression SEMICOLON"""
+    p[0] = Assigment(p[1], p[3], p.lineno(1), -1)
+
+
+# ###########################################ARRAY VARIABLE DECLARATION ###############################################
 def p_array_declaration_1(p):    # array_expression instead of expression
     """array_declaration : LET MUTABLE ID COLON array_type EQUAL array_expression SEMICOLON"""
     p[0] = ArrayDeclaration(p[3], p[5], p[7], True, p.lineno(1), -1)
@@ -198,7 +208,6 @@ def p_variable_type_string(p):
 def p_expression_integer(p):
     """expression : INTEGER"""
     p[0] = Literal(p[1], ElementType.INT, p.lineno(1), -1)
-    # print(p.lexpos(1))
 
 
 def p_expression_float(p):
@@ -308,26 +317,28 @@ def p_expression_logic_not(p):
     """expression : LOGIC_NOT expression"""
     p[0] = Logic(p[2], p[2], LogicType.LOGIC_NOT, p.lineno(1), -1)
 
+
 # VAR REF
 def p_var_ref_e(p):
     """expression : ID %prec VAR_REF"""
     p[0] = VariableReference(p[1], p.lineno(1), -1)
 
-# ARRAY REF
 
+# ARRAY REF
 def p_array_ref(p):
     """expression : ID array_indexes"""
     p[0] = ArrayReference(p[1], p[2], p.lineno(1), -1)
+
 
 def p_array_indexes_r(p):
     """array_indexes : array_indexes BRACKET_O expression BRACKET_C"""
     p[1].append(p[3])
     p[0] = p[1]
 
+
 def p_array_indexes(p):
     """array_indexes : BRACKET_O expression BRACKET_C"""
     p[0] = [p[2]]
-
 
 
 def p_error(p):
@@ -338,7 +349,7 @@ def p_error(p):
     print(f"2nd next token is {parser.token()}")
 
 
-parser = yacc.yacc()  # los increibles
+parser = yacc.yacc()  # los increíbles
 
 #
 #                                        (                          )
@@ -359,4 +370,3 @@ parser = yacc.yacc()  # los increibles
 #                                  /     :    ,`-'`-'`-'`-'`-'\       `.
 #                                 /      ;  ,'  /              \        `
 #                                /      / ,'   /                \
-

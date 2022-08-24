@@ -7,8 +7,8 @@ from element_types.element_type import ElementType
 
 from global_config import get_unique_number
 
-class Assigment(Instruction) :
 
+class Assigment(Instruction):
     def __init__(self, _id: str, expression: Expression, line: int, column: int):
         super().__init__(line, column)
         self._id: str = _id
@@ -33,5 +33,3 @@ class Assigment(Instruction) :
                       f'{father_ref} -> {expr_ast.head_ref}\n'
 
         return ASTReturn(value=result, head_ref=father_ref)
-
-
