@@ -101,3 +101,16 @@ def match_array_type(supposed: ElementType, arr: List[ValueTuple]) -> bool:
 
     # All children and self returned True
     return True
+
+
+def value_tuple_array_to_array(arr) -> list:
+
+    r = []
+    element: ValueTuple
+    for element in arr:
+        if isinstance(element.value, list):
+            r.append(value_tuple_array_to_array(element.value))
+            continue
+        r.append(element.value)
+
+    return r

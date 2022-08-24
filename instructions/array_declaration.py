@@ -68,6 +68,7 @@ class ArrayDeclaration(Instruction):
             raise SemanticError(error_msg, self.line, self.column)
 
         self.values = expression_result.value
+        self.dimensions = sizes
 
         r = global_config.match_array_type(self.var_type, expression_result.value)
         print(f'Type match:{r}')

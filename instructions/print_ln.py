@@ -21,7 +21,6 @@ class PrintLN(Instruction):
 
     def execute(self, env: Environment) -> ExecReturn:
 
-
         if self.expr_list[0]._type is not ElementType.STRING_PRIMITIVE:
             print("println formatter is not string_primitive")
             error_msg = f'El primer argumento de println debería ser un string primitivo'
@@ -45,17 +44,37 @@ class PrintLN(Instruction):
         for arg in self.expr_list[1:]:
             the_arg = arg.execute(env)
 
+            print(the_str.find("{}"))
+            print(the_str.find("{:?}"))
+
+            i1 = the_str.find("{}")  # -1
+            i2 = the_str.find("{:?}")  # 4
+            next_is_simple = ((i1 < i2) or (i2 == -1)) and (i1 != -1)
+            print(next_is_simple)
+
+            # Arrays
+            if isinstance(the_arg.value, list):
+                print("change for array")
+                if next_is_simple:
+                    error_msg = f'{{}} fue dado para una variable que es array'
+                    global_config.log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
+                the_str = the_str.replace("{:?}", str(global_config.value_tuple_array_to_array(the_arg.value)), 1)
+                continue
+
             if the_arg._type in [ElementType.INT, ElementType.FLOAT, ElementType.STRING_PRIMITIVE]:
+
+                if not next_is_simple:
+                    error_msg = f'{{:?}} fue dado para una variable que no es array'
+                    global_config.log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
                 the_str = the_str.replace("{}", str(the_arg.value), 1)
+                continue
 
-            # TODO check for array types
         global_config.console_output += the_str + "\n"
-
-
-
-
-
-
+        return ExecReturn(ElementType.BOOL, True, False, False, False)
 
     def ast(self) -> ASTReturn:
         pass
