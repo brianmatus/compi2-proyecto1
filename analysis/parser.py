@@ -9,6 +9,7 @@ from instructions.declaration import Declaration
 from instructions.array_declaration import ArrayDeclaration
 from instructions.print_ln import PrintLN
 from instructions.assignment import Assigment
+from instructions.array_assignment import ArrayAssignment
 
 ##########################################################################
 from element_types.arithmetic_type import ArithmeticType
@@ -62,6 +63,7 @@ def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add a
     | array_declaration
     | println_inst
     | var_assignment
+    | array_assignment
     """
     p[0] = p[1]
 
@@ -94,9 +96,26 @@ def p_var_declaration_4(p):
 
 
 # ###########################################VARIABLE ASSIGNMENT ###############################################
+
 def p_var_assignment(p):
     """var_assignment : ID EQUAL expression SEMICOLON"""
     p[0] = Assigment(p[1], p[3], p.lineno(1), -1)
+
+
+
+def p_array_assignment(p):
+    """array_assignment : ID array_indexes EQUAL expression SEMICOLON
+    | ID array_indexes EQUAL array_expression SEMICOLON"""
+    p[0] = ArrayAssignment(p[1], p[2], p[4], p.lineno(1), -1)
+    print("p_array_assignment")
+
+
+# ###########################################VARIABLE ASSIGNMENT ###############################################
+def p_total_array_assignment(p):  # TODO pending to format
+    """array_assignment : ID EQUAL expression SEMICOLON
+    | ID EQUAL array_expression SEMICOLON"""
+    p[0] = ArrayAssignment(p[1], [], p[3], p.lineno(1), -1)
+    print("total_p_array_assignment")
 
 
 # ###########################################ARRAY VARIABLE DECLARATION ###############################################
@@ -204,6 +223,11 @@ def p_variable_type_string(p):
 #######################################################################################################################
 #######################################################################################################################
 
+
+# Will this break the parser?
+def p_expression_array_expression(p):
+    """expression : array_expression"""
+    p[0] = p[1]
 
 def p_expression_integer(p):
     """expression : INTEGER"""

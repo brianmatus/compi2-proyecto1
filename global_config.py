@@ -103,6 +103,32 @@ def match_array_type(supposed: ElementType, arr: List[ValueTuple]) -> bool:
     return True
 
 
+def extract_dimensions_to_dict(arr) -> dict:
+
+    if not isinstance(arr, list):  # Same deepness, so no array
+        return {}
+
+    r = {}
+    i = 1
+
+    layer = arr
+    while True:
+
+        if isinstance(layer[0], list):
+            r[i] = len(layer)
+            layer = layer[0]
+            i += 1
+            continue
+
+        r[i] = len(layer)
+        break
+
+    return r
+
+
+
+
+
 def value_tuple_array_to_array(arr) -> list:
 
     r = []
