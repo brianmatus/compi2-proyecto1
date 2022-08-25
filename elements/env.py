@@ -103,4 +103,7 @@ class Environment:
 
         return self.parent_environment.recursive_get(_id)
 
+    def remove_child(self, child):  # child: Environment
+        self.children_environment = filter(lambda p: p is child, self.children_environment)
+
 

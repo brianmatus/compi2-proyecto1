@@ -9,6 +9,7 @@ ElementType = Enum('ElementType',
                   'STRING_PRIMITIVE',  # literal
                   'STRING_CLASS',  # class (using .to_owned() or .to_string()
                   'ARRAY_EXPRESSION',  # only used internally
+                  'VOID',
                   'EQUAL',
                   'OPE_EQUAL',
                   'OPE_NEQUAL',
