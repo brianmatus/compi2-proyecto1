@@ -101,18 +101,18 @@ class ArrayAssignment(Instruction):
 
         to_match = global_config.extract_dimensions_to_dict(resulting)
 
-        print("aqui xd")
-        print(to_match)
-        print(expr.value)
+        # print("aqui xd")
+        # print(to_match)
+        # print(expr.value)
 
         match = global_config.match_dimensions(list(to_match.keys()), expr.value)
-        print(match)
+        # print(match)
 
-        print('aqui 2')
-        print("to be replaced:")
-        print(resulting)
-        print("the replacement:")
-        print(expr)
+        # print('aqui 2')
+        # print("to be replaced:")
+        # print(resulting)
+        # print("the replacement:")
+        # print(expr)
 
         resulting.value = expr.value
 

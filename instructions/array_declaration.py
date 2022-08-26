@@ -61,7 +61,7 @@ class ArrayDeclaration(Instruction):
         # Get my supposed values and match dimensions
         expression_result: ValueTuple = self.expression.execute(env)
         r = global_config.match_dimensions(list(sizes.values()), expression_result.value)
-        print(f'Dimension match:{r}')
+        # print(f'Dimension match:{r}')
         if not r:
             error_msg = f'Uno o mas elementos del array no concuerdan en tamaño con su definición'
             global_config.log_semantic_error(error_msg, self.line, self.column)
@@ -71,7 +71,7 @@ class ArrayDeclaration(Instruction):
         self.dimensions = sizes
 
         r = global_config.match_array_type(self.var_type, expression_result.value)
-        print(f'Type match:{r}')
+        # print(f'Type match:{r}')
 
         if not r:
             error_msg = f'Uno o mas elementos del array no concuerdan en tipo con su definición'

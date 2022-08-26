@@ -17,9 +17,12 @@ class Conditional(Instruction):
     def __init__(self, clauses: List[ConditionClause], line: int, column: int):
         super().__init__(line, column)
         self.clauses: List[ConditionClause] = clauses
+        # print("conditional detected")
+
 
     def execute(self, env: Environment) -> ExecReturn:
         for clause in self.clauses:
+            print("evaluating class")
 
             env.remove_child(clause.environment)
             clause.environment = Environment(env)
@@ -28,6 +31,7 @@ class Conditional(Instruction):
 
             # Reached Else Clause
             if (clause.condition is None):
+                print("reached else")
                 instruction: Instruction
                 for instruction in clause.instructions:
                     result = instruction.execute(clause.environment)
@@ -39,6 +43,13 @@ class Conditional(Instruction):
 
             result = clause.condition.execute(clause.environment)
 
+            if result._type is not ElementType.BOOL:
+                error_msg = f"La expresión de un if debe ser de tipo booleano." \
+                            f"(Se obtuvo {result.value}->{result._type})."
+
+                log_semantic_error(error_msg, self.line, self.column)
+                raise SemanticError(error_msg, self.line, self.column)
+
             # Clause accepted
             if (result.value is True):
                 for instruction in clause.instructions:
@@ -48,8 +59,8 @@ class Conditional(Instruction):
 
                 return ExecReturn(ElementType.BOOL, True, False, False, False)
 
-            # No execution
-            return ExecReturn(ElementType.BOOL, False, False, False, False)
+        # No execution
+        return ExecReturn(ElementType.BOOL, False, False, False, False)
 
 
 

@@ -12,7 +12,9 @@ reserved = {
     'char': 'TYPE_CHAR',
     'str': 'TYPE_AMPER_STR',
     'String': 'TYPE_STRING',
-    'println': 'PRINTLN'
+    'println': 'PRINTLN',
+    'else': 'ELSE',
+    'if': 'IF'
 }
 
 tokens = [
@@ -45,6 +47,8 @@ tokens = [
     'PARENTH_C',
     'BRACKET_O',
     'BRACKET_C',
+    'KEY_O',
+    'KEY_C'
 ] + list(reserved.values())
 
 
@@ -78,6 +82,8 @@ t_PARENTH_O = r'\('
 t_PARENTH_C = r'\)'
 t_BRACKET_O = r'\['
 t_BRACKET_C = r'\]'
+t_KEY_O = r'{'
+t_KEY_C = r'}'
 
 
 t_SEMICOLON = r';'
