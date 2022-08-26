@@ -3,6 +3,7 @@ import analysis.lexer as lexer
 
 from element_types.element_type import ElementType
 from elements.condition_clause import ConditionClause
+from elements.match_clause import MatchClause
 from elements.env import Environment
 
 ##########################################################################
@@ -13,6 +14,7 @@ from instructions.print_ln import PrintLN
 from instructions.assignment import Assigment
 from instructions.array_assignment import ArrayAssignment
 from instructions.conditional import Conditional
+from instructions.conditional_match import MatchI
 
 ##########################################################################
 from element_types.arithmetic_type import ArithmeticType
@@ -62,13 +64,87 @@ def p_instructions(p):
 
 def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add all productions here
     """
-    instruction : var_declaration
+    instruction : var_declaration SEMICOLON
+    | array_declaration SEMICOLON
+    | println_inst SEMICOLON
+    | var_assignment SEMICOLON
+    | array_assignment SEMICOLON
+    | if_else_elseif
+    | match_statement
+    """
+    p[0] = p[1]
+
+
+def p_no_semicolon_instruction(p):  # TODO all added to p_instruction should be added here
+    """
+    no_semicolon_instruction : var_declaration
     | array_declaration
     | println_inst
     | var_assignment
     | array_assignment
     | if_else_elseif
     """
+    p[0] = p[1]
+
+
+# ##########################################IF CLAUSES##################################################################
+def p_match_statement(p):
+    """match_statement : MATCH expression KEY_O match_conditions KEY_C"""
+    p[0] = MatchI(p[2], p[4], p.lineno(1), -1)
+
+
+def p_match_conditions_1(p):
+    """match_conditions : cases default_case"""
+    p[0] = p[1] + p[2]
+
+
+def p_match_conditions_2(p):
+    """match_conditions : cases"""
+    p[0] = p[1]
+
+
+def p_match_conditions_3(p):
+    """match_conditions : default_case"""
+    p[0] = p[1]
+
+
+def p_switch_cases_r_1(p):
+    """cases : cases match_expr_list EQUAL OPE_MORE KEY_O instructions KEY_C"""
+    p[0] = p[1] + [MatchClause(p[2], p[6], Environment(None))]
+
+
+def p_switch_cases_r_2(p):
+    """cases : cases match_expr_list EQUAL OPE_MORE no_semicolon_instruction COMMA"""
+    p[0] = p[1] + [MatchClause(p[2], [p[5]], Environment(None))]
+
+
+def p_switch_cases_1(p):
+    """cases : match_expr_list EQUAL OPE_MORE KEY_O instructions KEY_C"""
+    p[0] = [MatchClause(p[1], p[5], Environment(None))]
+
+
+def p_switch_cases_2(p):
+    """cases : match_expr_list EQUAL OPE_MORE no_semicolon_instruction COMMA"""
+    p[0] = [MatchClause(p[1], [p[4]], Environment(None))]
+
+
+def p_default_case_1(p):
+    """default_case : UNDERSCORE_NULL EQUAL OPE_MORE KEY_O instructions KEY_C"""
+    p[0] = [MatchClause(None, p[5], Environment(None))]
+
+
+def p_default_case_2(p):
+    """default_case : UNDERSCORE_NULL EQUAL OPE_MORE no_semicolon_instruction"""
+    p[0] = [MatchClause(None, p[4], Environment(None))]
+
+
+def p_match_expr_list_r(p):
+    """match_expr_list : match_expr_list OR_STICK expression"""
+    p[0] = p[1] + [p[2]]
+
+
+def p_match_expr_list(p):
+    """match_expr_list : expression"""
     p[0] = p[1]
 
 
@@ -120,72 +196,72 @@ def p_else(p):
 
 # ###########################################PRINTLN####################################################################
 def p_println_inst(p):
-    """println_inst : PRINTLN LOGIC_NOT PARENTH_O expression_list PARENTH_C SEMICOLON"""
+    """println_inst : PRINTLN LOGIC_NOT PARENTH_O expression_list PARENTH_C"""
     p[0] = PrintLN(p[4], p.lineno(1), -1)
 
 
 # ###########################################SIMPLE VARIABLE DECLARATION ###############################################
 def p_var_declaration_1(p):
-    """var_declaration : LET MUTABLE ID COLON variable_type EQUAL expression SEMICOLON"""
+    """var_declaration : LET MUTABLE ID COLON variable_type EQUAL expression"""
     p[0] = Declaration(p[3], p[5], p[7], True, p.lineno(1), -1)
 
 
 def p_var_declaration_2(p):
-    """var_declaration : LET MUTABLE ID EQUAL expression SEMICOLON"""
+    """var_declaration : LET MUTABLE ID EQUAL expression"""
     p[0] = Declaration(p[3], None, p[5], True, p.lineno(1), -1)
 
 
 def p_var_declaration_3(p):
-    """var_declaration : LET ID COLON variable_type EQUAL expression SEMICOLON"""
+    """var_declaration : LET ID COLON variable_type EQUAL expression"""
     p[0] = Declaration(p[2], p[4], p[6], False, p.lineno(1), -1)
 
 
 def p_var_declaration_4(p):
-    """var_declaration : LET ID EQUAL expression SEMICOLON"""
+    """var_declaration : LET ID EQUAL expression"""
     p[0] = Declaration(p[2], None, p[4], False, p.lineno(1), -1)
 
 
 # ###########################################VARIABLE ASSIGNMENT ###############################################
 
 def p_var_assignment(p):
-    """var_assignment : ID EQUAL expression SEMICOLON"""
+    """var_assignment : ID EQUAL expression"""
     p[0] = Assigment(p[1], p[3], p.lineno(1), -1)
 
 
-def p_array_assignment(p):
-    """array_assignment : ID array_indexes EQUAL expression SEMICOLON
-    | ID array_indexes EQUAL array_expression SEMICOLON"""
-    p[0] = ArrayAssignment(p[1], p[2], p[4], p.lineno(1), -1)
-    print("p_array_assignment")
-
-
-# ###########################################VARIABLE ASSIGNMENT ###############################################
+# ###########################################ARRAY ASSIGNMENT ###############################################
 def p_total_array_assignment(p):
-    """array_assignment : ID EQUAL expression SEMICOLON
-    | ID EQUAL array_expression SEMICOLON"""
+    """array_assignment : ID EQUAL expression
+    | ID EQUAL array_expression"""
     p[0] = ArrayAssignment(p[1], [], p[3], p.lineno(1), -1)
     print("total_p_array_assignment")
 
 
+def p_array_assignment(p):
+    """array_assignment : ID array_indexes EQUAL expression
+    | ID array_indexes EQUAL array_expression"""
+    p[0] = ArrayAssignment(p[1], p[2], p[4], p.lineno(1), -1)
+    print("p_array_assignment")
+
+
 # ###########################################ARRAY VARIABLE DECLARATION ###############################################
 def p_array_declaration_1(p):    # array_expression instead of expression
-    """array_declaration : LET MUTABLE ID COLON array_type EQUAL array_expression SEMICOLON"""
+    """array_declaration : LET MUTABLE ID COLON array_type EQUAL array_expression"""
     p[0] = ArrayDeclaration(p[3], p[5], p[7], True, p.lineno(1), -1)
     print("p_array_declaration_1")
 
 
 def p_array_declaration_2(p):
-    """array_declaration : LET MUTABLE ID COLON array_type SEMICOLON"""
+    """array_declaration : LET MUTABLE ID COLON array_type"""
     p[0] = ArrayDeclaration(p[3], p[5], None, True, p.lineno(1), -1)
 
 
 def p_array_declaration_3(p):
-    """array_declaration : LET ID COLON array_type EQUAL array_expression SEMICOLON"""
+    """array_declaration : LET ID COLON array_type EQUAL array_expression"""
     p[0] = ArrayDeclaration(p[2], p[4], p[6], False, p.lineno(1), -1)
 
 
 def p_array_declaration_4(p):
-    """array_declaration : LET ID COLON array_type SEMICOLON"""
+    """array_declaration : LET ID COLON array_type"""
     p[0] = ArrayDeclaration(p[2], p[4], None, False, p.lineno(1), -1)
 
 

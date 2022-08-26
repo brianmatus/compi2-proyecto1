@@ -14,7 +14,8 @@ reserved = {
     'String': 'TYPE_STRING',
     'println': 'PRINTLN',
     'else': 'ELSE',
-    'if': 'IF'
+    'if': 'IF',
+    'match': 'MATCH'
 }
 
 tokens = [
@@ -39,6 +40,7 @@ tokens = [
     'CHAR',
     'ID',
     'AMPERSAND',
+    'OR_STICK',
     'SEMICOLON',
     'COLON',
     'COMMA',
@@ -48,7 +50,8 @@ tokens = [
     'BRACKET_O',
     'BRACKET_C',
     'KEY_O',
-    'KEY_C'
+    'KEY_C',
+    'UNDERSCORE_NULL'
 ] + list(reserved.values())
 
 
@@ -90,12 +93,18 @@ t_SEMICOLON = r';'
 t_COLON = r':'
 t_COMMA = r','
 t_AMPERSAND = r'&'
+t_OR_STICK = r'\|'
 
 t_EQUAL = r'='
 
 
 def t_ID(t):
     r"""[a-zA-Z_][a-zA-Z_0-9]*"""
+
+    if t.value == '_':
+        t.type = 'UNDERSCORE_NULL'
+        return t
+
     t.type = reserved.get(t.value, 'ID')  # Check for reserved words
     return t
 

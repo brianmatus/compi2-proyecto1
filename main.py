@@ -1,6 +1,6 @@
 import traceback
 
-import analysis.lexer as lexer # TODO for debug only
+import analysis.lexer as lexer  # TODO for debug only
 
 from typing import List
 
@@ -155,9 +155,6 @@ def generate_instruction_set_ast(instruction_set: List[Instruction], father_ref:
                 f'{father_ref} -> {instruction_ast.head_ref}\n'
 
     return _str
-
-
-
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
