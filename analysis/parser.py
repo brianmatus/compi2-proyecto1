@@ -91,54 +91,7 @@ def p_no_semicolon_instruction(p):  # TODO all added to p_instruction should be 
     p[0] = p[1]
 
 
-# ###################################MATCH CLAUSES AS EXPR (NEEDS TESTING)##############################################################
-def p_match_expr(p):
-    """match_expr : MATCH expression KEY_O match_expr_conditions KEY_C"""
-    p[0] = MatchExpression(p[2], p[4], p.lineno(1), -1)
-
-
-def p_match_expr_conditions_1(p):
-    """match_expr_conditions : cases_expr default_case_expr"""
-    p[0] = p[1] + p[2]
-
-
-def p_match_expr_conditions_2(p):
-    """match_expr_conditions : cases_expr"""
-    p[0] = p[1]
-
-
-def p_match_expr_conditions_3(p):
-    """match_conditions : default_case_expr"""
-    p[0] = p[1]
-
-
-def p_switch_expr_cases_r(p):
-    """cases_expr : cases_expr match_expr_list EQUAL OPE_MORE expression COMMA"""
-    p[0] = p[1] + [MatchExpressionClause(p[2], p[5], Environment(None))]
-
-
-def p_switch_cases_expr(p):
-    """cases_expr : match_expr_list EQUAL OPE_MORE expression COMMA"""
-    p[0] = [MatchExpressionClause(p[1], p[4], Environment(None))]
-
-
-def p_default_case_expr(p):
-    """default_case_expr : UNDERSCORE_NULL EQUAL OPE_MORE expression"""
-    p[0] = [MatchExpressionClause(None, p[4], Environment(None))]
-
-
-# Already defined, reused
-# def p_match_expr_list_r(p):
-#     """match_expr_list : match_expr_list OR_STICK expression"""
-#     p[0] = p[1] + [p[2]]
-#
-#
-# def p_match_expr_list(p):
-#     """match_expr_list : expression"""
-#     p[0] = p[1]
-
-
-# ##########################################MATCH CLAUSES###############################################################
+# #################################################MATCH CLAUSES########################################################
 def p_match_statement(p):
     """match_statement : MATCH expression KEY_O match_conditions KEY_C"""
     p[0] = MatchI(p[2], p[4], p.lineno(1), -1)
@@ -197,52 +150,6 @@ def p_match_expr_list_r(p):
 def p_match_expr_list(p):
     """match_expr_list : expression"""
     p[0] = [p[1]]
-
-
-# ##########################################IF CLAUSES EXPRESSION##################################################################
-def p_if_else_elseif_statement_1_expr(p):
-    """if_else_elseif_expr : if_s_expr"""
-    p[0] = ConditionalExpression(p[1], p.lineno(1), -1)
-
-
-def p_if_else_elseif_statement_2_expr(p):
-    """if_else_elseif_expr : if_s_expr else_s_expr"""
-    p[0] = ConditionalExpression(p[1] + p[2], p.lineno(1), -1)
-
-
-def p_if_else_elseif_statement_3_expr(p):
-    """if_else_elseif_expr : if_s_expr else_ifs_expr"""
-    p[0] = ConditionalExpression(p[1] + p[2], p.lineno(1), -1)
-
-
-def p_if_else_elseif_statement_4_expr(p):
-    """if_else_elseif_expr : if_s_expr else_ifs_expr else_s_expr"""
-    p[0] = ConditionalExpression(p[1] + p[2] + p[3], p.lineno(1), -1)
-
-
-def p_if_statement_expr(p):
-    """if_s_expr : IF expression KEY_O expression KEY_C"""
-    p[0] = [ConditionExpressionClause(p[2], p[4], Environment(None))]
-
-
-def p_elseifs_r_expr(p):
-    """else_ifs_expr : else_ifs_expr else_if_expr"""
-    p[0] = p[1] + p[2]
-
-
-def p_elseifs_expr(p):
-    """else_ifs_expr :  else_if_expr"""
-    p[0] = p[1]
-
-
-def p_elseif_expr(p):
-    """else_if_expr : ELSE IF expression KEY_O expression KEY_C"""
-    p[0] = [ConditionExpressionClause(p[3], p[5], Environment(None))]
-
-
-def p_else_expr(p):
-    """else_s_expr : ELSE KEY_O expression KEY_C"""
-    p[0] = [ConditionExpressionClause(None, p[3], Environment(None))]
 
 
 # ##########################################IF CLAUSES##################################################################
@@ -598,6 +505,98 @@ def p_match_as_expr(p):
 def p_if_expr(p):
     """expression : if_else_elseif_expr"""
     p[0] = p[1]
+
+
+# ############################################MATCH CLAUSES AS EXPR (NEEDS TESTING)#####################################
+def p_match_expr(p):
+    """match_expr : MATCH expression KEY_O match_expr_conditions KEY_C"""
+    p[0] = MatchExpression(p[2], p[4], p.lineno(1), -1)
+
+
+def p_match_expr_conditions_1(p):
+    """match_expr_conditions : cases_expr default_case_expr"""
+    p[0] = p[1] + p[2]
+
+
+def p_match_expr_conditions_2(p):
+    """match_expr_conditions : cases_expr"""
+    p[0] = p[1]
+
+
+def p_match_expr_conditions_3(p):
+    """match_conditions : default_case_expr"""
+    p[0] = p[1]
+
+
+def p_switch_expr_cases_r(p):
+    """cases_expr : cases_expr match_expr_list EQUAL OPE_MORE expression COMMA"""
+    p[0] = p[1] + [MatchExpressionClause(p[2], p[5], Environment(None))]
+
+
+def p_switch_cases_expr(p):
+    """cases_expr : match_expr_list EQUAL OPE_MORE expression COMMA"""
+    p[0] = [MatchExpressionClause(p[1], p[4], Environment(None))]
+
+
+def p_default_case_expr(p):
+    """default_case_expr : UNDERSCORE_NULL EQUAL OPE_MORE expression"""
+    p[0] = [MatchExpressionClause(None, p[4], Environment(None))]
+
+
+# Already defined, reused
+# def p_match_expr_list_r(p):
+#     """match_expr_list : match_expr_list OR_STICK expression"""
+#     p[0] = p[1] + [p[2]]
+#
+#
+# def p_match_expr_list(p):
+#     """match_expr_list : expression"""
+#     p[0] = p[1]
+
+# #####################################################IF CLAUSES EXPRESSION############################################
+def p_if_else_elseif_statement_1_expr(p):
+    """if_else_elseif_expr : if_s_expr"""
+    p[0] = ConditionalExpression(p[1], p.lineno(1), -1)
+
+
+def p_if_else_elseif_statement_2_expr(p):
+    """if_else_elseif_expr : if_s_expr else_s_expr"""
+    p[0] = ConditionalExpression(p[1] + p[2], p.lineno(1), -1)
+
+
+def p_if_else_elseif_statement_3_expr(p):
+    """if_else_elseif_expr : if_s_expr else_ifs_expr"""
+    p[0] = ConditionalExpression(p[1] + p[2], p.lineno(1), -1)
+
+
+def p_if_else_elseif_statement_4_expr(p):
+    """if_else_elseif_expr : if_s_expr else_ifs_expr else_s_expr"""
+    p[0] = ConditionalExpression(p[1] + p[2] + p[3], p.lineno(1), -1)
+
+
+def p_if_statement_expr(p):
+    """if_s_expr : IF expression KEY_O expression KEY_C"""
+    p[0] = [ConditionExpressionClause(p[2], p[4], Environment(None))]
+
+
+def p_elseifs_r_expr(p):
+    """else_ifs_expr : else_ifs_expr else_if_expr"""
+    p[0] = p[1] + p[2]
+
+
+def p_elseifs_expr(p):
+    """else_ifs_expr :  else_if_expr"""
+    p[0] = p[1]
+
+
+def p_elseif_expr(p):
+    """else_if_expr : ELSE IF expression KEY_O expression KEY_C"""
+    p[0] = [ConditionExpressionClause(p[3], p[5], Environment(None))]
+
+
+def p_else_expr(p):
+    """else_s_expr : ELSE KEY_O expression KEY_C"""
+    p[0] = [ConditionExpressionClause(None, p[3], Environment(None))]
 
 
 def p_error(p):
