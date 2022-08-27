@@ -44,23 +44,22 @@ class MatchI(Instruction):
 
                 return ExecReturn(ElementType.BOOL, True, False, False, False)
 
+            for condition in clause.condition:
+                result = condition.execute(clause.environment)
 
+                if result._type is not compare_to_result._type:
+                    error_msg = f"La expresión de un match debe ser del mismo tipo que la variable a evaluar"
+                    log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
 
-            result = clause.condition.execute(clause.environment)
+                # Clause accepted
+                if result.value is compare_to_result.value:
+                    for instruction in clause.instructions:
+                        result = instruction.execute(clause.environment)
+                        if result.propagate_break or result.propagate_continue or result.propagate_method_return:
+                            return result
 
-            if result._type is not compare_to_result._type:
-                error_msg = f"La expresión de un match debe ser del mismo tipo que la variable a evaluar"
-                log_semantic_error(error_msg, self.line, self.column)
-                raise SemanticError(error_msg, self.line, self.column)
-
-            # Clause accepted
-            if result.value is compare_to_result.value:
-                for instruction in clause.instructions:
-                    result = instruction.execute(clause.environment)
-                    if result.propagate_break or result.propagate_continue or result.propagate_method_return:
-                        return result
-
-                return ExecReturn(ElementType.BOOL, True, False, False, False)
+                    return ExecReturn(ElementType.BOOL, True, False, False, False)
 
         # No execution
         return ExecReturn(ElementType.BOOL, False, False, False, False)

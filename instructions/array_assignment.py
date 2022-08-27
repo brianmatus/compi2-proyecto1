@@ -35,14 +35,15 @@ class ArrayAssignment(Instruction):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-
         if not isinstance(the_symbol, ArraySymbol):
             error_msg = f'Variable {self._id} no es de tipo array y no puede ser indexada'
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-
-
+        if not the_symbol.is_mutable and the_symbol.is_init:
+            error_msg = f'Variable {self._id} es constante y no puede ser asignado un valor nuevo'
+            global_config.log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
 
         dimensions = []
         ind: Expression
@@ -115,6 +116,8 @@ class ArrayAssignment(Instruction):
         # print(expr)
 
         resulting.value = expr.value
+
+        return ExecReturn(ElementType.BOOL, True, False, False, False)
 
         # No dimensions?
 

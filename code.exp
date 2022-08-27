@@ -1,8 +1,29 @@
 let mut x : i64 = 4;
 
-x = 5;
+x = 13;
 
-x = 11 ;
+let y =
+	if x < 10 {
+		3
+	} else if x == 10 {
+		4
+	} else {
+		5
+};
+
+
+let z = match x {
+    9 => 3,
+    10 => 4,
+    _ => 5
+};
+
+
+println!("{} -> {} -> {} ",x,y,z);
+
+
+
+
 
 match x {
 	11 => println!("es once :D"),
