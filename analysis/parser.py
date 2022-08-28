@@ -7,8 +7,10 @@ from elements.condition_expression_clause import ConditionExpressionClause
 from elements.match_clause import MatchClause
 from elements.match_expression_clause import MatchExpressionClause
 from elements.env import Environment
+from element_types.func_call_arg import FuncCallArg
+from elements.id_tuple import IDTuple
 
-##########################################################################
+# ################################INSTRUCTIONS#########################################
 from element_types.array_def_type import ArrayDefType
 from instructions.declaration import Declaration
 from instructions.array_declaration import ArrayDeclaration
@@ -17,8 +19,10 @@ from instructions.assignment import Assigment
 from instructions.array_assignment import ArrayAssignment
 from instructions.conditional import Conditional
 from instructions.conditional_match import MatchI
+from instructions.function_declaration import FunctionDeclaration
+from instructions.function_call import FunctionCallI
 
-##########################################################################
+# ################################EXPRESSIONS#########################################
 from element_types.arithmetic_type import ArithmeticType
 from element_types.logic_type import LogicType
 from expressions.literal import Literal
@@ -75,6 +79,8 @@ def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add a
     | array_assignment SEMICOLON
     | if_else_elseif
     | match_statement
+    | function_declaration
+    | function_call_i SEMICOLON
     """
     p[0] = p[1]
 
@@ -87,8 +93,97 @@ def p_no_semicolon_instruction(p):  # TODO all added to p_instruction should be 
     | var_assignment
     | array_assignment
     | if_else_elseif
+    | match_statement
+    | function_declaration
+    | function_call_i
     """
     p[0] = p[1]
+
+
+# ################################################FUNCTION CALL I#######################################################
+def p_function_call_i(p):
+    """function_call_i : ID PARENTH_O func_call_args PARENTH_C"""
+    p[0] = FunctionCallI(p[1], p[3], p.lineno(1), -1)
+
+
+def p_func_call_args_r(p):
+    """func_call_args : func_call_args COMMA func_call_arg"""
+    p[0] = p[1] + [p[3]]
+
+
+def p_func_call_args(p):
+    """func_call_args : func_call_arg"""
+    p[0] = [p[1]]
+
+
+def p_func_call_arg_1(p):
+    """func_call_arg : expression"""
+    p[0] = FuncCallArg(p[1], False, False)
+
+
+def p_func_call_arg_2(p):
+    """func_call_arg : AMPERSAND expression"""
+    p[0] = FuncCallArg(p[2], True, False)
+
+
+def p_func_call_arg_3(p):
+    """func_call_arg : AMPERSAND MUTABLE expression"""
+    p[0] = FuncCallArg(p[3], True, True)
+
+# ###############################################FUNCTION DECLARATION###################################################
+def p_function_declaration_1(p):
+    """function_declaration : FN ID PARENTH_O func_decl_args PARENTH_C KEY_O instructions KEY_C"""
+    p[0] = FunctionDeclaration(p[2], p[4], ElementType.VOID, p[7], p.lineno(1), -1)
+
+def p_function_declaration_2(p):
+    """function_declaration : FN ID PARENTH_O func_decl_args PARENTH_C SUB OPE_MORE variable_type KEY_O instructions KEY_C"""
+    p[0] = FunctionDeclaration(p[2], p[4], p[8], p[10], p.lineno(1), -1)
+
+
+def p_func_decl_args_r(p):
+    """func_decl_args : func_decl_args COMMA func_var"""
+    p[0] = p[1] + [p[3]]
+
+
+def p_func_decl_args(p):
+    """func_decl_args : func_var"""
+    p[0] = [p[1]]
+
+
+def p_func_decl_args_epsilon(p):
+    """func_decl_args : epsilon"""
+    p[0] = [p[1]]
+
+
+def p_func_var_1(p):
+    """func_var : ID COLON variable_type"""
+    p[0] = IDTuple(p[1], p[3], False, False, -1)
+
+
+def p_func_var_2(p):
+    """func_var : ID COLON MUTABLE variable_type"""
+    p[0] = IDTuple(p[1], p[4], True, False, -1)
+
+
+def p_func_var_3(p):  # Should only be used in arrays (and vectors??)
+    """func_var : ID COLON AMPERSAND func_decl_array_var_type"""
+    p[0] = IDTuple(p[1], p[4][0], False, True, p[4][1])
+
+
+def p_func_var_4(p):  # Should only be used in arrays (and vectors??)
+    """func_var : ID COLON AMPERSAND MUTABLE func_decl_array_var_type"""
+    p[0] = IDTuple(p[1], p[5][0], True, True, p[5][1])
+
+
+def p_func_call_array_var_type_r(p):
+    """func_decl_array_var_type : BRACKET_O func_decl_array_var_type BRACKET_C"""
+    p[0] = p[2]
+    p[0][1] += 1
+
+
+def p_func_call_array_var_type(p):
+    """func_decl_array_var_type : BRACKET_O variable_type BRACKET_C"""
+    p[0] = [p[2], 1]
 
 
 # #################################################MATCH CLAUSES########################################################
@@ -598,6 +693,10 @@ def p_else_expr(p):
     """else_s_expr : ELSE KEY_O expression KEY_C"""
     p[0] = [ConditionExpressionClause(None, p[3], Environment(None))]
 
+
+def p_epsilon(p):
+    """epsilon :"""
+    pass
 
 def p_error(p):
     print("Syntax error::Unexpected token")

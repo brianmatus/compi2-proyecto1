@@ -16,7 +16,9 @@ semantic_error_list: List[SemanticError] = []
 ALLOW_NESTED_VARIABLE_OVERRIDE = True
 unique_counter = 0
 console_output: str = ""
-# TODO function_list = Dict[func_name:str, func:func_decl]
+function_list: dict = {}  # func_name:str, func:func_decl
+
+main_environment = None  # Type Environment. Due to circular import this is set in main
 
 
 def log_to_console(txt: str):

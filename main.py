@@ -18,7 +18,7 @@ from errors.syntactic_error import SyntacticError
 
 import global_config
 
-main_environment: Environment = Environment(None)
+
 
 # TODO import: function decl, declaration, array declare, conditional, switch, while, for, logic
 
@@ -44,14 +44,13 @@ def parse_code(code_string: str) -> ParseResult:
     #     print(tok)
 
     code_string += "\n"
+    global_config.main_environment = Environment(None)
 
     lexic_error_list = []
     syntactic_error_list = []
     semantic_error_list = []
     # func list
     global_config.console_output = ""
-    global main_environment
-
     try:
         instruction_set = parser.parse(code_string)
 
@@ -91,13 +90,14 @@ def parse_code(code_string: str) -> ParseResult:
         for instruction in instruction_set:
 
             print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-            instruction.execute(main_environment)
+            instruction.execute(global_config.main_environment)
 
         # print("Resulting AST:")
         # print(generate_ast_tree(instruction_set))
         print("Resulting environment:")
-        _symbol_table = main_environment.symbol_table  # TODO delete me, debug only
-        print(main_environment)
+        _symbol_table = global_config.main_environment.symbol_table  # TODO delete me, debug only
+        _function_list = global_config.function_list
+        print(global_config.main_environment)
         print("Resulting function list:")
         # print(function_list)
         print("Resulting symbol table:")
@@ -111,7 +111,7 @@ def parse_code(code_string: str) -> ParseResult:
 
         print("#####################Errores Lexicos:###################")
         lexic: LexicError
-        for lexic in lexic_error_list :
+        for lexic in lexic_error_list:
             print("[row:%s,column:%s]Error Lexico: <%s> no reconocido", lexic.row, lexic.column, lexic.reason)
 
         print("#####################Errores Sintactico:###################")
@@ -124,7 +124,7 @@ def parse_code(code_string: str) -> ParseResult:
         for semantic in semantic_error_list:
             print("[row:%s,column:%s]ERROR:%s", semantic.row, semantic.column, semantic.reason)
 
-        main_environment = Environment(None)
+        global_config.main_environment = Environment(None)
         return ParseResult(lexic_error_list, syntactic_error_list, semantic_error_list,
                            ast_tree=generate_ast_tree(instruction_set),
                            console_output=global_config.console_output,

@@ -1,7 +1,7 @@
 import ply.lex as lex
 
 reserved = {
-    'fn': 'FUNCTION',
+    'fn': 'FN',
     'let': 'LET',
     'mut': 'MUTABLE',
     'i64': 'TYPE_I64',
