@@ -16,7 +16,8 @@ reserved = {
     'println': 'PRINTLN',
     'else': 'ELSE',
     'if': 'IF',
-    'match': 'MATCH'
+    'match': 'MATCH',
+    'return': "RETURN"
 }
 
 tokens = [
@@ -45,6 +46,7 @@ tokens = [
     'OR_STICK',
     'SEMICOLON',
     'COLON',
+    'DOT',
     'COMMA',
     'EQUAL',
     'PARENTH_O',
@@ -99,6 +101,7 @@ t_KEY_C = r'}'
 
 t_SEMICOLON = r';'
 t_COLON = r':'
+t_DOT = r'\.'
 t_COMMA = r','
 t_AMPERSAND = r'&'
 t_OR_STICK = r'\|'

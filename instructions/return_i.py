@@ -1,3 +1,5 @@
+from typing import Union
+
 from returns.exec_return import ExecReturn
 from instructions.instruction import Instruction
 from elements.env import Environment
@@ -6,9 +8,10 @@ from expressions.expression import Expression
 
 
 class ReturnI(Instruction):
-    def __init__(self, expr: Expression, line: int, column: int):
+    def __init__(self, expr: Union[Expression, None], line: int, column: int):
         super().__init__(line, column)
         self.expr = expr
+
 
     def execute(self, env: Environment) -> ExecReturn:
 
@@ -16,4 +19,10 @@ class ReturnI(Instruction):
             return ExecReturn(ElementType.VOID, None, True, False, False)
 
         result = self.expr.execute(env)
-        return ExecReturn(result._type, result.value, True, False, False)
+
+        # WTF? python wasn't adding ._type to it, idk man I'm tired.
+        r = ExecReturn(_type=result._type, value=result.value, propagate_method_return=True,
+                       propagate_continue=False, propagate_break=False)
+        r._type = result._type
+        print(r._type)
+        return r

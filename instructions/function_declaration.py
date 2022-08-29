@@ -33,7 +33,7 @@ class FunctionDeclaration(Instruction):
         #     raise SemanticError(error_msg, self.line, self.column)
 
         global_config.function_list[self._id] = self
-        print(f'FUnction {self._id} saved to main environment')
+        print(f'Function {self._id} saved to main environment')
 
         self.environment = Environment(global_config.main_environment)  # Just in case, this should happen in every call
 

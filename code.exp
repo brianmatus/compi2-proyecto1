@@ -1,37 +1,12 @@
 
-fn main () {
-    let mut x : i64 = 4;
-
-    x = 13;
-
-    let mut equisde : usize = 3;
-    equisde = equisde + 2 ;
-
-/*
-
-Esto es un comentario multiline xdxdxdxd
-*/
-
-    let mut c : [i64;5] = [1,2,3,4,5];
-    let mut d : f64 = 5.5;
-
-    ola(& c, d);
-
-    println!("despues de editar: {:?}", c);
-    println!("d: {}", d);
-
+fn masdos(a : i64) -> i64 {
+    return a + 2;
 }
 
-/* Aca
-hay
-otro
-x
-D
-*/
+
+fn main () {
+    let x : i64 = masdos(5);
+    println!("xd {}", x);
 
 
-fn ola(a: &[i64], b: mut f64) -> i64 {
-    println!("ola :D ->  {:?}", a);
-    //a[0] = 27;
-    b = 1.1;
 }

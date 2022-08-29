@@ -106,7 +106,7 @@ def parse_code(code_string: str) -> ParseResult:
             raise SemanticError(error_msg, -1, -1)
 
         print(main_func.params)
-        if main_func.params[0] is not None:
+        if len(main_func.params) is not 0:
             error_msg = f"ADVERTENCIA: La función main debe llamarse sin argumentos. Estos serán ignorados"
             global_config.log_semantic_error(error_msg, -1, -1)
             # No need to raise, they will only get ignored

@@ -21,6 +21,7 @@ from instructions.conditional import Conditional
 from instructions.conditional_match import MatchI
 from instructions.function_declaration import FunctionDeclaration
 from instructions.function_call import FunctionCallI
+from instructions.return_i import ReturnI
 
 # ################################EXPRESSIONS#########################################
 from element_types.arithmetic_type import ArithmeticType
@@ -33,6 +34,7 @@ from expressions.array_reference import ArrayReference
 from expressions.array_expression import ArrayExpression
 from expressions.conditional_expression import ConditionalExpression
 from expressions.conditional_match_expression import MatchExpression
+from expressions.function_call_expression import FunctionCallE
 
 tokens = lexer.tokens
 
@@ -81,6 +83,7 @@ def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add a
     | match_statement
     | function_declaration
     | function_call_i SEMICOLON
+    | return_i SEMICOLON
     """
     p[0] = p[1]
 
@@ -96,8 +99,20 @@ def p_no_semicolon_instruction(p):  # TODO all added to p_instruction should be 
     | match_statement
     | function_declaration
     | function_call_i
+    | return_i
     """
     p[0] = p[1]
+
+
+# #############################################RETURN STATEMENT#########################################################
+def p_return_i_1(p):
+    """return_i : RETURN expression"""
+    p[0] = ReturnI(p[2], p.lineno(1), -1)
+
+
+def p_return_i_2(p):
+    """return_i : RETURN"""
+    p[0] = ReturnI(None, p.lineno(1), -1)
 
 
 # ################################################FUNCTION CALL I#######################################################
@@ -111,9 +126,14 @@ def p_func_call_args_r(p):
     p[0] = p[1] + [p[3]]
 
 
-def p_func_call_args(p):
+def p_func_call_args_1(p):
     """func_call_args : func_call_arg"""
     p[0] = [p[1]]
+
+
+def p_func_call_args_2(p):
+    """func_call_args : epsilon"""
+    p[0] = list()
 
 
 def p_func_call_arg_1(p):
@@ -152,7 +172,7 @@ def p_func_decl_args(p):
 
 def p_func_decl_args_epsilon(p):
     """func_decl_args : epsilon"""
-    p[0] = [p[1]]
+    p[0] = []
 
 
 def p_func_var_1(p):
@@ -450,6 +470,12 @@ def p_variable_type_string(p):
 #######################################################################################################################
 #######################################################################################################################
 #######################################################################################################################
+
+
+
+def p_function_call_e(p):
+    """expression : ID PARENTH_O func_call_args PARENTH_C"""
+    p[0] = FunctionCallE(p[1], p[3], p.lineno(1), -1)
 
 
 # Will this break the parser?
