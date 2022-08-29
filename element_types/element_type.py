@@ -3,6 +3,7 @@ from enum import Enum
 ElementType = Enum('ElementType',
               ' '.join([
                   'INT',
+                  'USIZE',
                   'FLOAT',
                   'BOOL',
                   'CHAR',
@@ -31,6 +32,7 @@ ElementType = Enum('ElementType',
                   'COLON',
                   # Reserved
                   'TYPE_INT',
+                  'TYPE_USIZE',
                   'TYPE_FLOAT',
                   'TYPE_CHAR',
                   'TYPE_STRING_PRIMITIVE',

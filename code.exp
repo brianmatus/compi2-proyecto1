@@ -4,6 +4,14 @@ fn main () {
 
     x = 13;
 
+    let mut equisde : usize = 3;
+    equisde = equisde + 2 ;
+
+/*
+
+Esto es un comentario multiline xdxdxdxd
+*/
+
     let mut c : [i64;5] = [1,2,3,4,5];
     let mut d : f64 = 5.5;
 
@@ -14,6 +22,12 @@ fn main () {
 
 }
 
+/* Aca
+hay
+otro
+x
+D
+*/
 
 
 fn ola(a: &[i64], b: mut f64) -> i64 {

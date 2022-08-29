@@ -21,40 +21,29 @@ function_list: dict = {}  # func_name:str, func:func_decl
 main_environment = None  # Type Environment. Due to circular import this is set in main
 
 
-def log_to_console(txt: str):
-    global console_output
-    console_output += txt
+def is_arithmetic_pure_literals(expr) -> bool:
+
+    from expressions.literal import Literal
+    from expressions.arithmetic import Arithmetic
+    a = type(expr)
+    print(a)
+    if isinstance(expr, Literal):
+        return True
+
+    if isinstance(expr, Arithmetic):
+        return is_arithmetic_pure_literals(expr.left) and is_arithmetic_pure_literals(expr.right)
 
 
-def log_lexic_error(foreign: str, row: int, column: int):
-    global console_output
-    lexic_error_list.append(LexicError(f'Signo <{foreign}> no reconocido', row, column))
-    print(f'Logged Lexic Error:{row}-{column} -> Signo <{foreign}> no reconocido')
-    console_output += f'[row:{row},column:{column}]Error Lexico: <{foreign} no reconocido\n'
+    # TODO If cast?
 
 
-def log_syntactic_error(reason: str, row: int, column: int):
-    global console_output
-    syntactic_error_list.append(SyntacticError(reason, row, column))
-    print(f'Logged Syntactic Error:{row}-{column} -> {reason}')
-    console_output += f'[row:{row},column:{column}]Error Sintáctico:{reason} \n'
+    # Every other thing already has embeded type and cannot be taken into place
+    # in for example (and the reason this is implemented) to allow usize arithmetic with literals
+
+    return False
 
 
-def log_semantic_error(reason: str, row: int, column: int):
-    global console_output
-    semantic_error_list.append(SemanticError(reason, row, column))
-    print(f'Logged Semantic Error:{row}-{column} -> {reason}')
-    console_output += f'[row:{row},column:{column}]Error Semántico:{reason}\n'
 
-
-def get_unique_number() -> int:
-    global unique_counter
-    unique_counter += 1
-    return unique_counter
-
-
-def random_hex_color_code() -> str:
-    return "#" + secrets.token_hex(2)
 
 
 def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:
@@ -128,9 +117,6 @@ def extract_dimensions_to_dict(arr) -> dict:
     return r
 
 
-
-
-
 def value_tuple_array_to_array(arr) -> list:
 
     r = []
@@ -142,3 +128,39 @@ def value_tuple_array_to_array(arr) -> list:
         r.append(element.value)
 
     return r
+
+
+def log_to_console(txt: str):
+    global console_output
+    console_output += txt
+
+
+def log_lexic_error(foreign: str, row: int, column: int):
+    global console_output
+    lexic_error_list.append(LexicError(f'Signo <{foreign}> no reconocido', row, column))
+    print(f'Logged Lexic Error:{row}-{column} -> Signo <{foreign}> no reconocido')
+    console_output += f'[row:{row},column:{column}]Error Lexico: <{foreign} no reconocido\n'
+
+
+def log_syntactic_error(reason: str, row: int, column: int):
+    global console_output
+    syntactic_error_list.append(SyntacticError(reason, row, column))
+    print(f'Logged Syntactic Error:{row}-{column} -> {reason}')
+    console_output += f'[row:{row},column:{column}]Error Sintáctico:{reason} \n'
+
+
+def log_semantic_error(reason: str, row: int, column: int):
+    global console_output
+    semantic_error_list.append(SemanticError(reason, row, column))
+    print(f'Logged Semantic Error:{row}-{column} -> {reason}')
+    console_output += f'[row:{row},column:{column}]Error Semántico:{reason}\n'
+
+
+def get_unique_number() -> int:
+    global unique_counter
+    unique_counter += 1
+    return unique_counter
+
+
+def random_hex_color_code() -> str:
+    return "#" + secrets.token_hex(2)

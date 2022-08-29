@@ -24,8 +24,6 @@ class Declaration(Instruction):
             print(f'Instance of declaration with id:{self._id} type:{self._type.name}')
 
     def execute(self, env: Environment) -> ExecReturn:
-        expr: ValueTuple
-
         # Declaration without assignment, using default values  (not possible? idk
         # if self.expression is None:
         #     match self._type:
@@ -40,7 +38,7 @@ class Declaration(Instruction):
         if self.expression is None:
             env.save_variable(self._id, self._type, None,
                               is_mutable=self.is_mutable, is_init=False, is_array=False,
-                              line=self.line, column=self.column,)
+                              line=self.line, column=self.column)
 
             return ExecReturn(ElementType.BOOL, True, False, False, False)
 
@@ -50,15 +48,49 @@ class Declaration(Instruction):
         if self._type is None:
             self._type = expr._type
 
-        # Check same type (exception is char var_type with str expr_type)
-        if (expr._type == self._type) or\
-                (self._type == ElementType.CHAR and expr._type == ElementType.STRING_PRIMITIVE):
+        # Check same type
+
+        if expr._type == self._type:
 
             env.save_variable(self._id, self._type, expr.value,
                               is_mutable=self.is_mutable, is_init=True, is_array=False,
-                              line=self.line, column=self.column, )
+                              line=self.line, column=self.column)
 
             return ExecReturn(self._type, True, False, False, False)
+
+        # Exceptions of same type:
+
+        # char var_type with str expr_type
+        if self._type == ElementType.CHAR and expr._type == ElementType.STRING_PRIMITIVE:
+            env.save_variable(self._id, self._type, expr.value,
+                              is_mutable=self.is_mutable, is_init=True, is_array=False,
+                              line=self.line, column=self.column)
+
+            return ExecReturn(self._type, True, False, False, False)
+
+
+        # usize var_type with int expr_type
+
+        print("fer aqui")
+        print(self._type == ElementType.USIZE)
+        print(expr._type == ElementType.INT)
+
+        if self._type == ElementType.USIZE and expr._type == ElementType.INT:
+
+            if global_config.is_arithmetic_pure_literals(self.expression):
+                if expr.value < 0:
+                    error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
+                    global_config.log_semantic_error(error_msg, self.line, self.column)
+                    raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+                env.save_variable(self._id, self._type, expr.value,
+                                  is_mutable=self.is_mutable, is_init=True, is_array=False,
+                                  line=self.line, column=self.column)
+
+                return ExecReturn(self._type, True, False, False, False)
+
+
+
+
 
         # Error:
         error_msg = f'Asignacion de tipo {expr._type.name} a variable  {self._id} de tipo {self._type.name}'

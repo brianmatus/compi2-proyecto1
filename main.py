@@ -125,7 +125,7 @@ def parse_code(code_string: str) -> ParseResult:
         # print("Resulting AST:")
         # print(generate_ast_tree(instruction_set))
         print("Resulting environment:")
-        _symbol_table = global_config.main_environment.symbol_table  # TODO delete me, debug only
+        _symbol_table = main_func.environment.symbol_table  # TODO delete me, debug only
         _function_list = global_config.function_list
         print(global_config.main_environment)
         print("Resulting function list:")

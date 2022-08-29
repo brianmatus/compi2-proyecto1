@@ -50,9 +50,9 @@ class FunctionCallI(Instruction):
             param = func.params[i]
             given = self.params[i].expr.execute(env)
 
-            print("aqui?")
-            print(param._type)
-            print(given._type)
+            # print("aqui?")
+            # print(param._type)
+            # print(given._type)
 
             if param._type != given._type:
                 error_msg = f"La función {self._id} fue llamada con un tipo incorrecto de argumento. Arg #{i+1}"

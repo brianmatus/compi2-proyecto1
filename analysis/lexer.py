@@ -5,6 +5,7 @@ reserved = {
     'let': 'LET',
     'mut': 'MUTABLE',
     'i64': 'TYPE_I64',
+    'usize': 'TYPE_USIZE',
     'f64': 'TYPE_F64',
     'bool': 'TYPE_BOOL',
     'true': 'BOOL_TRUE',
@@ -20,6 +21,7 @@ reserved = {
 
 tokens = [
     'COMMENT',
+    'MULTICOMMENT',
     'SUM',
     'SUB',
     'MULT',
@@ -61,12 +63,18 @@ def t_COMMENT(t):
     r"""//[^\n]*\n"""
     pass
 
+def t_MULTICOMMENT(t):
+    r"""/\*[\s\S]*?\*/"""
+    pass
+
 
 
 t_SUM = r'\+'
 t_SUB = r'\-'
+# t_MULT = r'(?<!/)\*(?!/)'
 t_MULT = r'\*'
 t_DIV = r'/(?!/)'
+# t_DIV = r'(?<!\*)/(?![/\*])'
 t_MOD = r'\%'
 
 
@@ -139,8 +147,6 @@ def t_INTEGER(t):
     return t
 
 
-
-
 def t_newline(t):
     r"""\n+"""
     t.lexer.lineno += t.value.count('\n')
@@ -148,6 +154,7 @@ def t_newline(t):
 
 def t_eof(t):
     return None
+
 
 def t_error(t):
     print(f'LEX: Illegal character {t.value[0]!r} line:{t.lexer.lineno} column:{find_column(t)}')

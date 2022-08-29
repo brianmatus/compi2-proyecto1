@@ -414,6 +414,10 @@ def p_variable_type_i64(p):
     p[0] = ElementType.INT
 
 
+def p_variable_type_usize(p):
+    """variable_type : TYPE_USIZE"""
+    p[0] = ElementType.USIZE
+
 def p_variable_type_f64(p):
     """variable_type : TYPE_F64"""
     p[0] = ElementType.FLOAT
