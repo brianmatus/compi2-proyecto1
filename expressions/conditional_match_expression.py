@@ -62,4 +62,4 @@ class MatchExpression(Expression):
                     return clause.expr.execute(environment)
 
         # No execution
-        return ValueTuple(ElementType.VOID, None)
+        return ValueTuple(ElementType.VOID, None, is_mutable=False)

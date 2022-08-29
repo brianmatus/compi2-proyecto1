@@ -14,7 +14,7 @@ class Expression:
 
     def execute(self, environment: Environment) -> ValueTuple:
         print("ABSTRACT EXPRESSION EXECUTE CALLED, CHECK LMAO")
-        return ValueTuple(None, None)
+        return ValueTuple(None, None, is_mutable=False)
 
     def ast(self) -> ASTReturn:
         print("ABSTRACT EXPRESSION EXECUTE CALLED, CHECK LMAO")

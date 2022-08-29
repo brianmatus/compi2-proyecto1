@@ -59,8 +59,8 @@ class ArrayReference(Expression):
             returning = returning[dimensions[i]].value
 
         if isinstance(returning, ValueTuple):
-            return returning
-        return ValueTuple(_type=the_symbol._type, value=returning)
+            return ValueTuple(_type=returning._type, value=returning.value, is_mutable=the_symbol.is_mutable)
+        return ValueTuple(_type=the_symbol._type, value=returning, is_mutable=the_symbol.is_mutable)
 
 
 

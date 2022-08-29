@@ -31,18 +31,18 @@ class Arithmetic(Expression):
 
                 # INT
                 if left._type == ElementType.INT and right._type == ElementType.INT:
-                    return ValueTuple(value=left.value + right.value, _type=ElementType.INT)
+                    return ValueTuple(value=left.value + right.value, _type=ElementType.INT, is_mutable=False)
                 # FLOAT
                 if left._type == ElementType.FLOAT and right._type == ElementType.FLOAT:
-                    return ValueTuple(value=left.value + right.value, _type=ElementType.FLOAT)
+                    return ValueTuple(value=left.value + right.value, _type=ElementType.FLOAT, is_mutable=False)
 
                 # &str + String
                 if left._type == ElementType.STRING_PRIMITIVE and right._type == ElementType.STRING_CLASS:
-                    return ValueTuple(value=left.value + right.value, _type=ElementType.STRING_CLASS)
+                    return ValueTuple(value=left.value + right.value, _type=ElementType.STRING_CLASS, is_mutable=False)
 
                 # String + &str
                 if left._type == ElementType.STRING_CLASS and right._type == ElementType.STRING_PRIMITIVE:
-                    return ValueTuple(value=left.value + right.value, _type=ElementType.STRING_CLASS)
+                    return ValueTuple(value=left.value + right.value, _type=ElementType.STRING_CLASS, is_mutable=False)
 
                 error_msg = f"Operacion Aritmetica SUMA {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
@@ -51,10 +51,10 @@ class Arithmetic(Expression):
             case ArithmeticType.SUB:
                 # INT
                 if left._type == ElementType.INT and right._type == ElementType.INT:
-                    return ValueTuple(value=left.value - right.value, _type=ElementType.INT)
+                    return ValueTuple(value=left.value - right.value, _type=ElementType.INT, is_mutable=False)
                 # FLOAT
                 if left._type == ElementType.FLOAT and right._type == ElementType.FLOAT:
-                    return ValueTuple(value=left.value - right.value, _type=ElementType.FLOAT)
+                    return ValueTuple(value=left.value - right.value, _type=ElementType.FLOAT, is_mutable=False)
 
                 error_msg = f"Operacion Aritmetica RESTA {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
@@ -63,10 +63,10 @@ class Arithmetic(Expression):
             case ArithmeticType.MULT:
                 # INT
                 if left._type == ElementType.INT and right._type == ElementType.INT:
-                    return ValueTuple(value=left.value * right.value, _type=ElementType.INT)
+                    return ValueTuple(value=left.value * right.value, _type=ElementType.INT, is_mutable=False)
                 # FLOAT
                 if left._type == ElementType.FLOAT and right._type == ElementType.FLOAT:
-                    return ValueTuple(value=left.value * right.value, _type=ElementType.FLOAT)
+                    return ValueTuple(value=left.value * right.value, _type=ElementType.FLOAT, is_mutable=False)
 
                 error_msg = f"Operacion Aritmetica MULTIPLICACION {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
@@ -75,10 +75,10 @@ class Arithmetic(Expression):
             case ArithmeticType.DIV:
                 # INT
                 if left._type == ElementType.INT and right._type == ElementType.INT:
-                    return ValueTuple(value=left.value / right.value, _type=ElementType.FLOAT)
+                    return ValueTuple(value=left.value / right.value, _type=ElementType.FLOAT, is_mutable=False)
                 # FLOAT
                 if left._type == ElementType.FLOAT and right._type == ElementType.FLOAT:
-                    return ValueTuple(value=left.value / right.value, _type=ElementType.FLOAT)
+                    return ValueTuple(value=left.value / right.value, _type=ElementType.FLOAT, is_mutable=False)
 
                 error_msg = f"Operacion Aritmetica DIVISION {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
@@ -87,10 +87,10 @@ class Arithmetic(Expression):
             case ArithmeticType.MOD:
                 # INT
                 if left._type == ElementType.INT and right._type == ElementType.INT:
-                    return ValueTuple(value=left.value % right.value, _type=ElementType.INT)
+                    return ValueTuple(value=left.value % right.value, _type=ElementType.INT, is_mutable=False)
                 # FLOAT
                 if left._type == ElementType.FLOAT and right._type == ElementType.FLOAT:
-                    return ValueTuple(value=left.value % right.value, _type=ElementType.FLOAT)
+                    return ValueTuple(value=left.value % right.value, _type=ElementType.FLOAT, is_mutable=False)
 
                 error_msg = f"Operacion Aritmetica MODULAR {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
@@ -100,10 +100,10 @@ class Arithmetic(Expression):
 
                 # INT
                 if left._type == ElementType.INT:
-                    return ValueTuple(value=0-left.value, _type=ElementType.INT)
+                    return ValueTuple(value=0-left.value, _type=ElementType.INT, is_mutable=False)
                 # FLOAT
                 if left._type == ElementType.FLOAT:
-                    return ValueTuple(value=0-left.value, _type=ElementType.FLOAT)
+                    return ValueTuple(value=0-left.value, _type=ElementType.FLOAT, is_mutable=False)
 
                 error_msg = f"Operacion Aritmetica MODULAR {left._type.name} <-> {right._type.name} es invalida."
                 global_config.log_semantic_error(error_msg, self.line, self.column)
@@ -111,7 +111,6 @@ class Arithmetic(Expression):
 
             case _:
                 print("ERROR??? Unknown arithmetic type?")
-
 
     def ast(self) -> ASTReturn:
 
@@ -137,5 +136,3 @@ class Arithmetic(Expression):
                  f'{right_ast.value}\n' \
                  f'{father_index} -> {right_ast.head_ref}\n'
         return ASTReturn(result, father_index)
-
-

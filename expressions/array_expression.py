@@ -33,7 +33,7 @@ class ArrayExpression(Expression):
                 global_config.log_semantic_error(error_msg, self.line, self.column)
                 raise SemanticError(error_msg, self.line, self.column)
 
-            return ValueTuple(value=[expr]*int(repetitions.value), _type=ElementType.ARRAY_EXPRESSION)  # TODO add return value
+            return ValueTuple(value=[expr]*int(repetitions.value), _type=ElementType.ARRAY_EXPRESSION, is_mutable=False)
 
         # Definition by list
         result: List[ValueTuple] = []
@@ -50,5 +50,5 @@ class ArrayExpression(Expression):
             expr_result = value.execute(environment)
             result.append(expr_result)
 
-        return ValueTuple(value=result, _type=ElementType.ARRAY_EXPRESSION)
+        return ValueTuple(value=result, _type=ElementType.ARRAY_EXPRESSION, is_mutable=False)
 

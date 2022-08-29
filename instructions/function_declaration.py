@@ -26,10 +26,11 @@ class FunctionDeclaration(Instruction):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        if global_config.main_environment.recursive_get(self._id) is not None:
-            error_msg = f"Ya existe una variable con el nombre {self._id}"
-            log_semantic_error(error_msg, self.line, self.column)
-            raise SemanticError(error_msg, self.line, self.column)
+        # Not necessary, as only functions are defined globally
+        # if global_config.main_environment.recursive_get(self._id) is not None:
+        #     error_msg = f"Ya existe una variable con el nombre {self._id}"
+        #     log_semantic_error(error_msg, self.line, self.column)
+        #     raise SemanticError(error_msg, self.line, self.column)
 
         global_config.function_list[self._id] = self
         print(f'FUnction {self._id} saved to main environment')

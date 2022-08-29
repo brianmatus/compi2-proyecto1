@@ -50,7 +50,7 @@ class FunctionCallI(Instruction):
             param = func.params[i]
             given = self.params[i].expr.execute(env)
 
-            print ("aqui?")
+            print("aqui?")
             print(param._type)
             print(given._type)
 
@@ -70,6 +70,23 @@ class FunctionCallI(Instruction):
             d = not param.is_array and self.params[i].as_reference
 
             print(f"as reference check:{c} | {d}")
+            if c or d:
+                error_msg = f"La función {self._id} fue llamada con un array sin ser usado como referencia." \
+                            f" Usa el operador & para pasar un array (ej.: &array)"
+                log_semantic_error(error_msg, self.line, self.column)
+                raise SemanticError(error_msg, self.line, self.column)
+
+
+            # Non mutable array was passed as mutable using &mut
+            if isinstance(given.value, list):
+                if param.is_mutable and not given.is_mutable:
+                    print(f'u r not actually mutable, liar!')
+                    error_msg = f"La función {self._id} fue llamada con un array no mutable, como mutable"
+                    log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
+            # print(f'or forgiveness:{not param.is_mutable}')
+
 
             intermediate_env.save_variable_array(param._id, param._type,
                                                  global_config.extract_dimensions_to_dict(given.value), given.value,

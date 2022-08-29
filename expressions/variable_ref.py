@@ -26,7 +26,7 @@ class VariableReference(Expression):
             global_config.log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        return ValueTuple(value=the_symbol.value, _type=the_symbol._type)
+        return ValueTuple(value=the_symbol.value, _type=the_symbol._type, is_mutable=the_symbol.is_mutable)
 
     def ast(self) -> ASTReturn:
         return ASTReturn("", -1)

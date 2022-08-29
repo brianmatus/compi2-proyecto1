@@ -45,61 +45,61 @@ class Logic(Expression):
             case LogicType.OPE_MORE:
 
                 if left.value > right.value:
-                    return ValueTuple(True, ElementType.BOOL)
+                    return ValueTuple(True, ElementType.BOOL, is_mutable=False)
                 else:
-                    return ValueTuple(False, ElementType.BOOL)
+                    return ValueTuple(False, ElementType.BOOL, is_mutable=False)
 
             case LogicType.OPE_LESS:
 
                 if left.value < right.value:
-                    return ValueTuple(True, ElementType.BOOL)
+                    return ValueTuple(True, ElementType.BOOL, is_mutable=False)
                 else:
-                    return ValueTuple(False, ElementType.BOOL)
+                    return ValueTuple(False, ElementType.BOOL, is_mutable=False)
 
             case LogicType.OPE_MORE_EQUAL:
 
                 if left.value >= right.value:
-                    return ValueTuple(True, ElementType.BOOL)
+                    return ValueTuple(True, ElementType.BOOL, is_mutable=False)
                 else:
-                    return ValueTuple(False, ElementType.BOOL)
+                    return ValueTuple(False, ElementType.BOOL, is_mutable=False)
 
             case LogicType.OPE_LESS_EQUAL:
 
                 if left.value <= right.value:
-                    return ValueTuple(True, ElementType.BOOL)
+                    return ValueTuple(True, ElementType.BOOL, is_mutable=False)
                 else:
-                    return ValueTuple(False, ElementType.BOOL)
+                    return ValueTuple(False, ElementType.BOOL, is_mutable=False)
 
             case LogicType.OPE_EQUAL:
                 if left.value == right.value:
-                    return ValueTuple(True, ElementType.BOOL)
+                    return ValueTuple(True, ElementType.BOOL, is_mutable=False)
                 else:
-                    return ValueTuple(False, ElementType.BOOL)
+                    return ValueTuple(False, ElementType.BOOL, is_mutable=False)
 
             case LogicType.OPE_NEQUAL:
                 if left.value != right.value:
-                    return ValueTuple(True, ElementType.BOOL)
+                    return ValueTuple(True, ElementType.BOOL, is_mutable=False)
                 else:
-                    return ValueTuple(False, ElementType.BOOL)
+                    return ValueTuple(False, ElementType.BOOL, is_mutable=False)
 
             case LogicType.OPE_NEQUAL:
                 if left.value != right.value:
-                    return ValueTuple(True, ElementType.BOOL)
+                    return ValueTuple(True, ElementType.BOOL, is_mutable=False)
                 else:
-                    return ValueTuple(False, ElementType.BOOL)
+                    return ValueTuple(False, ElementType.BOOL, is_mutable=False)
 
             ###########################################################
             case LogicType.LOGIC_OR:
-                return ValueTuple(left.value or right.value, ElementType.BOOL)
+                return ValueTuple(left.value or right.value, ElementType.BOOL, is_mutable=False)
             case LogicType.LOGIC_AND:
-                return ValueTuple(left.value and right.value, ElementType.BOOL)
+                return ValueTuple(left.value and right.value, ElementType.BOOL, is_mutable=False)
             case LogicType.LOGIC_NOT:
-                return ValueTuple(not left.value, ElementType.BOOL)
+                return ValueTuple(not left.value, ElementType.BOOL, is_mutable=False)
             case _:
                 print("ERROR??? Unknown logic type?")
 
         print("POTENTIAL ERROR? UNEXPECTED Logic Execution")
-        return ValueTuple(999999999999, ElementType.INT)
+        return ValueTuple(999999999999, ElementType.INT, is_mutable=False)
 
     def ast(self) -> ASTReturn:
         if self._type == LogicType.LOGIC_NOT:

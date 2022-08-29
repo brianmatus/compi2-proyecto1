@@ -9,6 +9,7 @@ from returns.parse_result import ParseResult
 from analysis.parser import parser
 
 from instructions.instruction import Instruction
+from instructions.function_declaration import FunctionDeclaration
 from elements.env import Environment
 
 from errors.lexic_error import LexicError
@@ -85,12 +86,41 @@ def parse_code(code_string: str) -> ParseResult:
 
     print(instruction_set)
 
+    # Register all functions and modules
     try:
         instruction: Instruction
         for instruction in instruction_set:
 
+            if not isinstance(instruction, FunctionDeclaration):  # Or Module declaration
+                error_msg = f"No se permiten declaraciones globales."
+                global_config.log_semantic_error(error_msg, instruction.line, instruction.column)
+                raise SemanticError(error_msg, instruction.line, instruction.column)
+
             print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             instruction.execute(global_config.main_environment)
+
+        main_func: FunctionDeclaration = global_config.function_list.get("main")
+        if main_func is None:
+            error_msg = f"No se definió una función main"
+            global_config.log_semantic_error(error_msg, -1, -1)
+            raise SemanticError(error_msg, -1, -1)
+
+        print(main_func.params)
+        if main_func.params[0] is not None:
+            error_msg = f"ADVERTENCIA: La función main debe llamarse sin argumentos. Estos serán ignorados"
+            global_config.log_semantic_error(error_msg, -1, -1)
+            # No need to raise, they will only get ignored
+            # raise SemanticError(error_msg, -1, -1)
+
+        # "Abandonen la esperanza todos los que entren aquí"
+        for instruction in main_func.instructions:
+            instruction.execute(main_func.environment)
+
+
+
+
+
+
 
         # print("Resulting AST:")
         # print(generate_ast_tree(instruction_set))

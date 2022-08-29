@@ -1,18 +1,23 @@
-let mut x : i64 = 4;
 
-x = 13;
+fn main () {
+    let mut x : i64 = 4;
 
-fn ola(a: &mut[i64], b: mut f64) -> i64 {
-    println!("ola :D ->  {}", a[0]);
-    a[0] = 27;
-    b = 1.1;
+    x = 13;
+
+    let mut c : [i64;5] = [1,2,3,4,5];
+    let mut d : f64 = 5.5;
+
+    ola(& c, d);
+
+    println!("despues de editar: {:?}", c);
+    println!("d: {}", d);
+
 }
 
 
-let mut c : [i64;5] = [1,2,3,4,5];
-let mut d : f64 = 5.5;
 
-ola(&mut c, d);
-
-println!("despues de editar: {:?}", c);
-println!("d: {}", d);
+fn ola(a: &[i64], b: mut f64) -> i64 {
+    println!("ola :D ->  {:?}", a);
+    //a[0] = 27;
+    b = 1.1;
+}
