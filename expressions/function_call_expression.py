@@ -31,10 +31,10 @@ class FunctionCallE(Expression):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        print("------------------------------------FUNC CALL------------------------------------")
+        # print("------------------------------------FUNC CALL------------------------------------")
 
-        print(len(self.params))
-        print(len(func.params))
+        # print(len(self.params))
+        # print(len(func.params))
 
         if len(self.params) != len(func.params):
             error_msg = f"La función {self._id} fue llamada con un numero incorrecto de argumentos"
@@ -68,7 +68,7 @@ class FunctionCallE(Expression):
             c = param.is_array and not self.params[i].as_reference
             d = not param.is_array and self.params[i].as_reference
 
-            print(f"as reference check:{c} | {d}")
+            # print(f"as reference check:{c} | {d}")
             if c or d:
                 error_msg = f"La función {self._id} fue llamada con un array sin ser usado como referencia." \
                             f" Usa el operador & para pasar un array (ej.: &array)"

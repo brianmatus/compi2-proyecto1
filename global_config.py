@@ -25,8 +25,6 @@ def is_arithmetic_pure_literals(expr) -> bool:
 
     from expressions.literal import Literal
     from expressions.arithmetic import Arithmetic
-    a = type(expr)
-    print(a)
     if isinstance(expr, Literal):
         return True
 

@@ -32,10 +32,10 @@ class FunctionCallI(Instruction):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        print("------------------------------------FUNC CALL------------------------------------")
-
-        print(len(self.params))
-        print(len(func.params))
+        # print("------------------------------------FUNC CALL------------------------------------")
+        #
+        # print(len(self.params))
+        # print(len(func.params))
 
         if len(self.params) != len(func.params):
             error_msg = f"La función {self._id} fue llamada con un numero incorrecto de argumentos"

@@ -24,5 +24,5 @@ class ReturnI(Instruction):
         r = ExecReturn(_type=result._type, value=result.value, propagate_method_return=True,
                        propagate_continue=False, propagate_break=False)
         r._type = result._type
-        print(r._type)
+        #print(r._type)
         return r

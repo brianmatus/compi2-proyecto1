@@ -17,6 +17,7 @@ from element_types.array_def_type import ArrayDefType
 
 class ArrayDeclaration(Instruction):
 
+    # TODO add array_reference and var_reference to expression type,
     def __init__(self, _id: str, array_type: ArrayDefType, expression: Union[ArrayExpression, None], is_mutable: bool,
                  line: int, column: int):
         self._id = _id

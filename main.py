@@ -105,8 +105,8 @@ def parse_code(code_string: str) -> ParseResult:
             global_config.log_semantic_error(error_msg, -1, -1)
             raise SemanticError(error_msg, -1, -1)
 
-        print(main_func.params)
-        if len(main_func.params) is not 0:
+        # print(main_func.params)
+        if len(main_func.params) != 0:
             error_msg = f"ADVERTENCIA: La función main debe llamarse sin argumentos. Estos serán ignorados"
             global_config.log_semantic_error(error_msg, -1, -1)
             # No need to raise, they will only get ignored
@@ -126,7 +126,7 @@ def parse_code(code_string: str) -> ParseResult:
         # print(generate_ast_tree(instruction_set))
         print("Resulting environment:")
         _symbol_table = main_func.environment.symbol_table  # TODO delete me, debug only
-        _function_list = global_config.function_list
+        _function_list = global_config.function_list  # TODO delete me, debug only
         print(global_config.main_environment)
         print("Resulting function list:")
         # print(function_list)

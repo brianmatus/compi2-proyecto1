@@ -39,16 +39,16 @@ class PrintLN(Instruction):
         the_str: str = _str.value
 
         for arg in self.expr_list[1:]:
-            # print("titan")
-            # print(arg)
+            print("titan")
+            print(arg)
             the_arg = arg.execute(env)
 
-            # print(the_arg)
+            print(the_arg)
 
             i1 = the_str.find("{}")  # -1
             i2 = the_str.find("{:?}")  # 4
             next_is_simple = ((i1 < i2) or (i2 == -1)) and (i1 != -1)
-            print(next_is_simple)
+            # print(next_is_simple)
 
             # Arrays
             if isinstance(the_arg.value, list):
@@ -61,17 +61,22 @@ class PrintLN(Instruction):
                 the_str = the_str.replace("{:?}", str(global_config.value_tuple_array_to_array(the_arg.value)), 1)
                 continue
 
-            if the_arg._type in [ElementType.INT, ElementType.FLOAT, ElementType.STRING_PRIMITIVE]:
-                # print("change for normal")
-                # print(the_arg)
+            allowed_types = [ElementType.INT, ElementType.USIZE, ElementType.FLOAT,
+                             ElementType.BOOL, ElementType.CHAR,
+                             ElementType.STRING_PRIMITIVE]
 
-                if not next_is_simple:
-                    error_msg = f'{{:?}} fue dado para una variable que no es array'
-                    global_config.log_semantic_error(error_msg, self.line, self.column)
-                    raise SemanticError(error_msg, self.line, self.column)
+            if the_arg._type not in allowed_types:
+                error_msg = f'El tipo {the_arg._type} debe ser casteado para usar en print.'
+                global_config.log_semantic_error(error_msg, self.line, self.column)
+                raise SemanticError(error_msg, self.line, self.column)
 
-                the_str = the_str.replace("{}", str(the_arg.value), 1)
-                continue
+            if not next_is_simple:
+                error_msg = f'{{:?}} fue dado para una variable que no es array'
+                global_config.log_semantic_error(error_msg, self.line, self.column)
+                raise SemanticError(error_msg, self.line, self.column)
+
+            the_str = the_str.replace("{}", str(the_arg.value), 1)
+            continue
 
         global_config.console_output += the_str + "\n"
         return ExecReturn(ElementType.BOOL, True, False, False, False)

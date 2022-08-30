@@ -35,6 +35,8 @@ from expressions.array_expression import ArrayExpression
 from expressions.conditional_expression import ConditionalExpression
 from expressions.conditional_match_expression import MatchExpression
 from expressions.function_call_expression import FunctionCallE
+from expressions.type_casting import TypeCasting
+from expressions.parameter_function_call import ParameterFunctionCallE
 
 tokens = lexer.tokens
 
@@ -363,8 +365,8 @@ def p_array_assignment(p):
 
 
 # ###########################################ARRAY VARIABLE DECLARATION ###############################################
-def p_array_declaration_1(p):    # array_expression instead of expression
-    """array_declaration : LET MUTABLE ID COLON array_type EQUAL array_expression"""
+def p_array_declaration_1(p):    # TODO array_expression instead of expression
+    """array_declaration : LET MUTABLE ID COLON array_type EQUAL expression"""
     p[0] = ArrayDeclaration(p[3], p[5], p[7], True, p.lineno(1), -1)
     print("p_array_declaration_1")
 
@@ -375,7 +377,7 @@ def p_array_declaration_2(p):
 
 
 def p_array_declaration_3(p):
-    """array_declaration : LET ID COLON array_type EQUAL array_expression"""
+    """array_declaration : LET ID COLON array_type EQUAL expression"""
     p[0] = ArrayDeclaration(p[2], p[4], p[6], False, p.lineno(1), -1)
 
 
@@ -471,6 +473,22 @@ def p_variable_type_string(p):
 #######################################################################################################################
 #######################################################################################################################
 
+
+def p_parameter_func_call(p):
+    """expression : ID DOT ID PARENTH_O func_call_args PARENTH_C"""
+    p[0] = ParameterFunctionCallE(p[1], p[3], p[5], p.lineno(1), -1)
+
+
+def p_parameter_func_call_array_ref(p):
+    """expression : expression DOT ID PARENTH_O func_call_args PARENTH_C"""
+    p[0] = ParameterFunctionCallE(p[1], p[3], p[5], p.lineno(1), -1)
+
+
+
+
+def p_casting(p):
+    """expression : expression AS variable_type"""
+    p[0] = TypeCasting(p[3], p[1], p.lineno(1), -1)
 
 
 def p_function_call_e(p):

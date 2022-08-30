@@ -13,11 +13,12 @@ reserved = {
     'char': 'TYPE_CHAR',
     'str': 'TYPE_AMPER_STR',
     'String': 'TYPE_STRING',
+    'as': 'AS',
     'println': 'PRINTLN',
     'else': 'ELSE',
     'if': 'IF',
     'match': 'MATCH',
-    'return': "RETURN"
+    'return': 'RETURN'
 }
 
 tokens = [

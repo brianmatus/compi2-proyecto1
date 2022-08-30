@@ -43,7 +43,7 @@ class Declaration(Instruction):
             return ExecReturn(ElementType.BOOL, True, False, False, False)
 
         expr: ValueTuple = self.expression.execute(env)
-        print(expr)
+        # print(expr)
 
         # Infer if not explicitly specified
         if self._type is None:
@@ -72,8 +72,8 @@ class Declaration(Instruction):
 
         # usize var_type with int expr_type
 
-        print(self._type == ElementType.USIZE)
-        print(expr._type == ElementType.INT)
+        # print(self._type == ElementType.USIZE)
+        # print(expr._type == ElementType.INT)
 
         if self._type == ElementType.USIZE and expr._type == ElementType.INT:
 
