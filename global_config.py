@@ -25,23 +25,20 @@ def is_arithmetic_pure_literals(expr) -> bool:
 
     from expressions.literal import Literal
     from expressions.arithmetic import Arithmetic
+    from expressions.type_casting import TypeCasting
     if isinstance(expr, Literal):
         return True
 
     if isinstance(expr, Arithmetic):
         return is_arithmetic_pure_literals(expr.left) and is_arithmetic_pure_literals(expr.right)
 
-
-    # TODO If cast?
-
+    if isinstance(expr, TypeCasting):
+        return is_arithmetic_pure_literals(expr.expr)
 
     # Every other thing already has embeded type and cannot be taken into place
     # in for example (and the reason this is implemented) to allow usize arithmetic with literals
 
     return False
-
-
-
 
 
 def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:
