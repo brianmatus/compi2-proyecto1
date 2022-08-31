@@ -1,3 +1,4 @@
+from typing import Union
 from returns.exec_return import ExecReturn
 from instructions.instruction import Instruction
 from elements.env import Environment
@@ -5,8 +6,8 @@ from element_types.element_type import ElementType
 from expressions.expression import Expression
 
 
-class Continue(Instruction):
-    def __init__(self, expr: Expression, line: int, column: int):
+class ContinueI(Instruction):
+    def __init__(self, expr: Union[Expression, None], line: int, column: int):
         super().__init__(line, column)
         self.expr = expr
 
@@ -17,3 +18,4 @@ class Continue(Instruction):
 
         result = self.expr.execute(env)
         return ExecReturn(result._type, result.value, False, False, True)
+

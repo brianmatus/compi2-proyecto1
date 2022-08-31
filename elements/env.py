@@ -81,6 +81,15 @@ class Environment:
             global_config.log_semantic_error(error_msg, line, column)
             raise SemanticError(error_msg, line, column)
 
+
+        #Exclusions to type mismatch before:
+        # var_t:usize expr_t:i64
+
+        if the_symbol._type == ElementType.USIZE and result._type == ElementType.INT:
+            the_symbol.value = result.value
+            the_symbol.is_init = True
+            return
+
         # Type mismatch check
         if the_symbol._type != result._type:
             error_msg = f'Variable {_id} de tipo {the_symbol._type.name} no puede ser asignada valor de tipo {result._type.name}'

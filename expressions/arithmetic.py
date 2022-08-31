@@ -78,10 +78,12 @@ class Arithmetic(Expression):
                 # USIZE INT(literals)
                 if left._type == ElementType.USIZE and right._type == ElementType.INT:
                     if global_config.is_arithmetic_pure_literals(self.right):
-                        if left.value - right.value < 0:
-                            error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
-                            global_config.log_semantic_error(error_msg, self.line, self.column)
-                            raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+                        # TODO Should usize be measured for undersize?
+                        # if left.value - right.value < 0:
+                        #     error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos." \
+                        #                 f"({left.value - right.value})"
+                        #     global_config.log_semantic_error(error_msg, self.line, self.column)
+                        #     raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
                         return ValueTuple(value=left.value - right.value, _type=ElementType.USIZE, is_mutable=False)
 
                 # INT(literals) USIZE

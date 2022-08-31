@@ -1,18 +1,15 @@
+fn main() {
+    let mut cont = 0;
 
-fn test(a : &mut[i64]) {
-    b = a.clone();
-}
+     let result = loop{
+        cont = cont + 1;
+        if cont == 10 {
+            break cont * 2;
+        }
+    };
+
+    println!("{}", result);
 
 
-fn main () {
-    //let mut arr : [ [[i64;2];3] ; 4] = [[[1,2],[3,4],[5,6]],[[7,8],[9,10],[11,12]],[[13,14],[15,16],[17,18]],[[19,20],[21,22],[23,24]]];
-    let mut arr : [i64;5] = [1,2,3,4,5];
-
-    let mut arr2 : [i64;5] = arr.clone();
-
-    arr2[0] = 10;
-
-    println!("{:?}", arr);
-    println!("{:?}", arr2);
 
 }

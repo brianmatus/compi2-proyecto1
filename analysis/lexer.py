@@ -15,10 +15,17 @@ reserved = {
     'String': 'TYPE_STRING',
     'as': 'AS',
     'println': 'PRINTLN',
+    'print': 'PRINT',
     'else': 'ELSE',
     'if': 'IF',
     'match': 'MATCH',
-    'return': 'RETURN'
+    'return': 'RETURN',
+    'continue': 'CONTINUE',
+    'break': 'BREAK',
+    'while': 'WHILE',
+    'loop': 'LOOP',
+    'for': 'FOR',
+    'in': 'in',
 }
 
 tokens = [

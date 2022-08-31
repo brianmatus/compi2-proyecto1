@@ -35,7 +35,7 @@ def is_arithmetic_pure_literals(expr) -> bool:
     if isinstance(expr, TypeCasting):
         return is_arithmetic_pure_literals(expr.expr)
 
-    # Every other thing already has embeded type and cannot be taken into place
+    # Every other thing already has embedded type and cannot be taken into place
     # in for example (and the reason this is implemented) to allow usize arithmetic with literals
 
     return False

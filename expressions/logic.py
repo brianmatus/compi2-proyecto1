@@ -25,17 +25,24 @@ class Logic(Expression):
         left = self.left.execute(environment)
         right = self.right.execute(environment)
 
+        print("----------------------------------------")
+        print("Logical")
+        print(left)
+        print(right)
+
 
         a = left._type == ElementType.INT and right._type == ElementType.INT
+        a2 = left._type == ElementType.USIZE and right._type == ElementType.USIZE
+        a3 = left._type in [ElementType.INT, ElementType.USIZE] and right._type in [ElementType.INT, ElementType.USIZE]
         b = left._type == ElementType.FLOAT and right._type == ElementType.FLOAT
         c = left._type == ElementType.STRING_PRIMITIVE and right._type == ElementType.STRING_PRIMITIVE
         d = left._type == ElementType.BOOL and right._type == ElementType.BOOL
         e = self._type == LogicType.LOGIC_OR or self._type == LogicType.LOGIC_AND or self._type == LogicType.LOGIC_NOT
 
         #Check int-float-string for relational, and only bool for logical
-        if not (a or b or c or (d and e)):
+        if not (a or a2 or a3 or b or c or (d and e)):
             error_msg = f"Operación relacional invalida ({left._type.name} -> {right._type.name})." \
-                        f"Las operaciones relacionales deben ser realizadas entre valores del mismo tipo entre solo" \
+                        f"Las operaciones relacionales deben ser realizadas entre valores del mismo tipo entre solo " \
                         f"int,float o string. Las operaciones lógicas solo pueden ser de tipo bool"
 
             global_config.log_semantic_error(error_msg, self.line, self.column)

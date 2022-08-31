@@ -1,5 +1,8 @@
+import global_config
 import ply.yacc as yacc
 import analysis.lexer as lexer
+
+from errors.syntactic_error import SyntacticError
 
 from element_types.element_type import ElementType
 from elements.condition_clause import ConditionClause
@@ -21,8 +24,11 @@ from instructions.conditional import Conditional
 from instructions.conditional_match import MatchI
 from instructions.function_declaration import FunctionDeclaration
 from instructions.function_call import FunctionCallI
+from instructions.while_i import WhileI
+from instructions.loop_i import LoopI
 from instructions.return_i import ReturnI
-
+from instructions.continue_i import ContinueI
+from instructions.break_i import BreakI
 # ################################EXPRESSIONS#########################################
 from element_types.arithmetic_type import ArithmeticType
 from element_types.logic_type import LogicType
@@ -37,6 +43,7 @@ from expressions.conditional_match_expression import MatchExpression
 from expressions.function_call_expression import FunctionCallE
 from expressions.type_casting import TypeCasting
 from expressions.parameter_function_call import ParameterFunctionCallE
+from expressions.loop_e import LoopE
 
 tokens = lexer.tokens
 
@@ -53,8 +60,13 @@ precedence = (
     ('nonassoc', 'OPE_EQUAL', 'OPE_NEQUAL', 'OPE_LESS', 'OPE_MORE', 'OPE_LESS_EQUAL', 'OPE_MORE_EQUAL'),
     ('left', 'SUB', 'SUM'),
     ('left', 'MULT', 'DIV', 'MOD'),
+    ('left', 'AS'),
     ('nonassoc', 'UMINUS', "LOGIC_NOT"),  # nonassoc according to rust, i think 'right'
-    ('nonassoc', 'VAR_REF')
+    ('nonassoc', 'PREC_VAR_REF'),
+    ('nonassoc', 'DOT'),
+    ('nonassoc', 'PREC_FUNC_CALL'),
+    ('nonassoc', 'PREC_METHOD_CALL'),
+    ('nonassoc', 'PREC_ARRAY_REF')
 
 )
 
@@ -86,6 +98,10 @@ def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add a
     | function_declaration
     | function_call_i SEMICOLON
     | return_i SEMICOLON
+    | continue_i SEMICOLON
+    | break_i SEMICOLON
+    | while_i
+    | loop_i
     """
     p[0] = p[1]
 
@@ -102,9 +118,45 @@ def p_no_semicolon_instruction(p):  # TODO all added to p_instruction should be 
     | function_declaration
     | function_call_i
     | return_i
+    | continue_i
+    | break_i
+    | while_i
+    | loop_i
     """
     p[0] = p[1]
 
+
+# ###############################################LOOP STATEMENT#########################################################
+def p_loop_i(p):
+    """loop_i : LOOP KEY_O instructions KEY_C"""
+    p[0] = LoopI(p[3], p.lineno(1), -1)
+
+# ##############################################WHILE STATEMENT#########################################################
+def p_while_i(p):
+    """while_i : WHILE expression KEY_O instructions KEY_C"""
+    p[0] = WhileI(p[2], p[4], p.lineno(1), -1)
+
+
+# ###############################################BREAK STATEMENT########################################################
+def p_break_i_1(p):
+    """break_i : BREAK expression"""
+    p[0] = BreakI(p[2], p.lineno(1), -1)
+
+
+def p_break_i_2(p):
+    """break_i : BREAK"""
+    p[0] = p[0] = BreakI(None, p.lineno(1), -1)
+
+
+# #################################################CONTINUE STATEMENT###################################################
+def p_continue_i_1(p):
+    """continue_i : CONTINUE expression"""
+    p[0] = ContinueI(p[2], p.lineno(1), -1)
+
+
+def p_continue_i_2(p):
+    """continue_i : CONTINUE"""
+    p[0] = ContinueI(None, p.lineno(1), -1)
 
 # #############################################RETURN STATEMENT#########################################################
 def p_return_i_1(p):
@@ -316,9 +368,15 @@ def p_else(p):
 
 
 # ###########################################PRINTLN####################################################################
+def p_print_inst(p):
+    """println_inst : PRINT LOGIC_NOT PARENTH_O expression_list PARENTH_C"""
+    p[0] = PrintLN(p[4], False, p.lineno(1), -1)
+
+
+# ###########################################PRINTLN####################################################################
 def p_println_inst(p):
     """println_inst : PRINTLN LOGIC_NOT PARENTH_O expression_list PARENTH_C"""
-    p[0] = PrintLN(p[4], p.lineno(1), -1)
+    p[0] = PrintLN(p[4], True, p.lineno(1), -1)
 
 
 # ###########################################SIMPLE VARIABLE DECLARATION ###############################################
@@ -474,25 +532,29 @@ def p_variable_type_string(p):
 #######################################################################################################################
 
 
+def p_loop_as_expression(p):
+    """expression : LOOP KEY_O instructions KEY_C"""
+    p[0] = LoopE(p[3], p.lineno(1), -1)
+
 def p_parameter_func_call(p):
-    """expression : ID DOT ID PARENTH_O func_call_args PARENTH_C"""
+    """expression : ID DOT ID PARENTH_O func_call_args PARENTH_C %prec PREC_METHOD_CALL"""
     p[0] = ParameterFunctionCallE(p[1], p[3], p[5], p.lineno(1), -1)
 
 
 def p_parameter_func_call_array_ref(p):
-    """expression : expression DOT ID PARENTH_O func_call_args PARENTH_C"""
-    p[0] = ParameterFunctionCallE(p[1], p[3], p[5], p.lineno(1), -1)
+    """expression : expression DOT ID PARENTH_O func_call_args PARENTH_C %prec PREC_METHOD_CALL"""
+    p[0] = ParameterFunctionCallE(p[1], p[3], p[5], p.lineno(2), -1)
 
 
 
 
 def p_casting(p):
     """expression : expression AS variable_type"""
-    p[0] = TypeCasting(p[3], p[1], p.lineno(1), -1)
+    p[0] = TypeCasting(p[3], p[1], p.lineno(2), -1)
 
 
 def p_function_call_e(p):
-    """expression : ID PARENTH_O func_call_args PARENTH_C"""
+    """expression : ID PARENTH_O func_call_args PARENTH_C %prec PREC_FUNC_CALL"""
     p[0] = FunctionCallE(p[1], p[3], p.lineno(1), -1)
 
 
@@ -534,27 +596,27 @@ def p_expression_false(p):
 
 def p_expression_plus(p):
     """expression : expression SUM expression"""
-    p[0] = Arithmetic(p[1], p[3], ArithmeticType.SUM, p.lineno(1), -1)
+    p[0] = Arithmetic(p[1], p[3], ArithmeticType.SUM, p.lineno(2), -1)
 
 
 def p_expression_minus(p):
     """expression : expression SUB expression"""
-    p[0] = Arithmetic(p[1], p[3], ArithmeticType.SUB, p.lineno(1), -1)
+    p[0] = Arithmetic(p[1], p[3], ArithmeticType.SUB, p.lineno(2), -1)
 
 
 def p_expression_mult(p):
     """expression : expression MULT expression"""
-    p[0] = Arithmetic(p[1], p[3], ArithmeticType.MULT, p.lineno(1), -1)
+    p[0] = Arithmetic(p[1], p[3], ArithmeticType.MULT, p.lineno(2), -1)
 
 
 def p_expression_div(p):
     """expression : expression DIV expression"""
-    p[0] = Arithmetic(p[1], p[3], ArithmeticType.DIV, p.lineno(1), -1)
+    p[0] = Arithmetic(p[1], p[3], ArithmeticType.DIV, p.lineno(2), -1)
 
 
 def p_expression_mod(p):
     """expression : expression MOD expression"""
-    p[0] = Arithmetic(p[1], p[3], ArithmeticType.MOD, p.lineno(1), -1)
+    p[0] = Arithmetic(p[1], p[3], ArithmeticType.MOD, p.lineno(2), -1)
 
 
 def p_expression_uminus(p):
@@ -571,43 +633,43 @@ def p_expression_parenthesis(p):
 
 def p_expression_ope_equal(p):
     """expression : expression OPE_EQUAL expression"""
-    p[0] = Logic(p[1], p[3], LogicType.OPE_EQUAL, p.lineno(1), -1)
+    p[0] = Logic(p[1], p[3], LogicType.OPE_EQUAL, p.lineno(2), -1)
 
 
 def p_expression_ope_nequal(p):
     """expression : expression OPE_NEQUAL expression"""
-    p[0] = Logic(p[1], p[3], LogicType.OPE_NEQUAL, p.lineno(1), -1)
+    p[0] = Logic(p[1], p[3], LogicType.OPE_NEQUAL, p.lineno(2), -1)
 
 
 def p_expression_ope_less(p):
     """expression : expression OPE_LESS expression"""
-    p[0] = Logic(p[1], p[3], LogicType.OPE_LESS, p.lineno(1), -1)
+    p[0] = Logic(p[1], p[3], LogicType.OPE_LESS, p.lineno(2), -1)
 
 
 def p_expression_ope_less_equal(p):
     """expression : expression OPE_LESS_EQUAL expression"""
-    p[0] = Logic(p[1], p[3], LogicType.OPE_LESS_EQUAL, p.lineno(1), -1)
+    p[0] = Logic(p[1], p[3], LogicType.OPE_LESS_EQUAL, p.lineno(2), -1)
 
 
 def p_expression_ope_more(p):
     """expression : expression OPE_MORE expression"""
-    p[0] = Logic(p[1], p[3], LogicType.OPE_MORE, p.lineno(1), -1)
+    p[0] = Logic(p[1], p[3], LogicType.OPE_MORE, p.lineno(2), -1)
 
 
 def p_expression_ope_more_equal(p):
     """expression : expression OPE_MORE_EQUAL expression"""
-    p[0] = Logic(p[1], p[3], LogicType.OPE_MORE_EQUAL, p.lineno(1), -1)
+    p[0] = Logic(p[1], p[3], LogicType.OPE_MORE_EQUAL, p.lineno(2), -1)
 
 
 # LOGICAL
 def p_expression_logic_or(p):
     """expression : expression LOGIC_OR expression"""
-    p[0] = Logic(p[1], p[3], LogicType.LOGIC_OR, p.lineno(1), -1)
+    p[0] = Logic(p[1], p[3], LogicType.LOGIC_OR, p.lineno(2), -1)
 
 
 def p_expression_logic_and(p):
     """expression : expression LOGIC_AND expression"""
-    p[0] = Logic(p[1], p[3], LogicType.LOGIC_AND, p.lineno(1), -1)
+    p[0] = Logic(p[1], p[3], LogicType.LOGIC_AND, p.lineno(2), -1)
 
 
 def p_expression_logic_not(p):
@@ -617,13 +679,13 @@ def p_expression_logic_not(p):
 
 # VAR REF
 def p_var_ref_e(p):
-    """expression : ID %prec VAR_REF"""
+    """expression : ID %prec PREC_VAR_REF"""
     p[0] = VariableReference(p[1], p.lineno(1), -1)
 
 
 # ARRAY REF
 def p_array_ref(p):
-    """expression : ID array_indexes"""
+    """expression : ID array_indexes %prec PREC_ARRAY_REF"""
     p[0] = ArrayReference(p[1], p[2], p.lineno(1), -1)
 
 
@@ -742,6 +804,7 @@ def p_else_expr(p):
     p[0] = [ConditionExpressionClause(None, p[3], Environment(None))]
 
 
+
 def p_epsilon(p):
     """epsilon :"""
     pass
@@ -750,8 +813,12 @@ def p_error(p):
     print("Syntax error::Unexpected token")
     print(p)
 
+    reason = f'Token <{p.value}> inesperado'
+    global_config.log_syntactic_error(reason, p.lineno, -1)
+
     print(f"next token is {parser.token()}")
     print(f"2nd next token is {parser.token()}")
+    raise SyntacticError(reason, p.lineno, -1)
 
 
 parser = yacc.yacc()  # los increíbles

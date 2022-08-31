@@ -93,7 +93,7 @@ class Declaration(Instruction):
 
 
         # Error:
-        error_msg = f'Asignacion de tipo {expr._type.name} a variable  {self._id} de tipo {self._type.name}'
+        error_msg = f'Asignacion de tipo {expr._type.name} a variable <{self._id}> de tipo {self._type.name}'
         global_config.log_semantic_error(error_msg, self.line, self.column)
         raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
 

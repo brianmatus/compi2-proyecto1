@@ -33,8 +33,8 @@ class ArrayReference(Expression):
         for index in self.indexes:
             result = index.execute(environment)
 
-            if result._type != ElementType.INT or isinstance(result.value, list):
-                error_msg = f'El acceso a array debe de ser con tipo entero'
+            if result._type not in [ElementType.INT, ElementType.USIZE] or isinstance(result.value, list):
+                error_msg = f'El acceso a array debe de ser con tipo entero/usize (Se obtuvo {result._type.name})'
                 log_semantic_error(error_msg, self.line, self.column)
                 raise SemanticError(error_msg, self.line, self.column)
 

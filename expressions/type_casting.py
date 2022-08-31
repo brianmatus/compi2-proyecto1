@@ -37,7 +37,7 @@ class TypeCasting(Expression):
             return ValueTuple(res.value, ElementType.FLOAT, res.is_mutable)
         # FLOAT TO INT
         if res._type == ElementType.FLOAT and self.cast_to == ElementType.INT:
-            return ValueTuple(res.value, ElementType.INT, res.is_mutable)
+            return ValueTuple(int(res.value), ElementType.INT, res.is_mutable)
 
 
         # INT TO BOOL, INVALID, use != 0

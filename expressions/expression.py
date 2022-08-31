@@ -9,6 +9,8 @@ class Expression:
         self.column = column
         self._type: ElementType = None
 
+        if line == 0:
+            print("LA LINEA ES 0")
         # Should have execute(environment: Environment) -> ValueTuple
         # Should have ast() -> ASTReturn
 

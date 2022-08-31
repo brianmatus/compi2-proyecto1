@@ -12,6 +12,8 @@ from elements.symbol import Symbol
 from elements.array_symbol import ArraySymbol
 from expressions.array_reference import ArrayReference
 from expressions.variable_ref import VariableReference
+from expressions.literal import Literal
+from expressions.type_casting import TypeCasting
 import copy
 
 from element_types.logic_type import LogicType
@@ -54,6 +56,15 @@ class ParameterFunctionCallE(Expression):
 
         elif isinstance(self.variable_id, VariableReference):
             the_symbol = environment.recursive_get(self.variable_id._id)
+
+        elif isinstance(self.variable_id, Literal):
+            if self.function_id == "to_string":
+                r = self.variable_id.execute(environment)
+                return ValueTuple(r.value, ElementType.STRING_CLASS, False)
+
+        elif isinstance(self.variable_id, TypeCasting):
+            r = self.variable_id.execute(environment)
+            the_symbol = Symbol("type_casting_forced_symbol", r._type, r.value, True, False)
 
         else:
             the_symbol = environment.recursive_get(self.variable_id)

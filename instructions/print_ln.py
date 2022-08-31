@@ -15,9 +15,10 @@ from elements.value_tuple import ValueTuple
 
 class PrintLN(Instruction):
 
-    def __init__(self, expr_list, line: int, column: int):
+    def __init__(self, expr_list, has_ln: bool, line: int, column: int):
         super().__init__(line, column)
         self.expr_list: List[Expression] = expr_list
+        self.has_ln: bool = has_ln
 
     def execute(self, env: Environment) -> ExecReturn:
 
@@ -39,11 +40,11 @@ class PrintLN(Instruction):
         the_str: str = _str.value
 
         for arg in self.expr_list[1:]:
-            print("titan")
-            print(arg)
+            # print("titan")
+            # print(arg)
             the_arg = arg.execute(env)
 
-            print(the_arg)
+            # print(the_arg)
 
             i1 = the_str.find("{}")  # -1
             i2 = the_str.find("{:?}")  # 4
@@ -63,10 +64,10 @@ class PrintLN(Instruction):
 
             allowed_types = [ElementType.INT, ElementType.USIZE, ElementType.FLOAT,
                              ElementType.BOOL, ElementType.CHAR,
-                             ElementType.STRING_PRIMITIVE]
+                             ElementType.STRING_PRIMITIVE, ElementType.STRING_CLASS]
 
             if the_arg._type not in allowed_types:
-                error_msg = f'El tipo {the_arg._type} debe ser casteado para usar en print.'
+                error_msg = f'El tipo {the_arg._type.name} debe ser casteado para usar en print.'
                 global_config.log_semantic_error(error_msg, self.line, self.column)
                 raise SemanticError(error_msg, self.line, self.column)
 
@@ -78,7 +79,11 @@ class PrintLN(Instruction):
             the_str = the_str.replace("{}", str(the_arg.value), 1)
             continue
 
-        global_config.console_output += the_str + "\n"
+        global_config.console_output += the_str
+
+        if self.has_ln:
+            global_config.console_output += "\n"
+
         return ExecReturn(ElementType.BOOL, True, False, False, False)
 
     def ast(self) -> ASTReturn:

@@ -47,13 +47,13 @@ def parse_code(code_string: str) -> ParseResult:
     code_string += "\n"
     global_config.main_environment = Environment(None)
 
-    lexic_error_list = []
-    syntactic_error_list = []
-    semantic_error_list = []
+    global_config.lexic_error_list = []
+    global_config.syntactic_error_list = []
+    global_config.semantic_error_list = []
     # func list
     global_config.console_output = ""
     try:
-        instruction_set = parser.parse(code_string)
+        instruction_set = parser.parse(code_string, tracking=True)
 
     except errors.custom_semantic.CustomSemanticError as err:
         traceback.print_exc()
@@ -61,10 +61,22 @@ def parse_code(code_string: str) -> ParseResult:
         print("Unhandled semantic error?, custom semantic?")
         # already logged, do nothing
 
-        main_environment = Environment(None)
-        return ParseResult(lexic_error_list, syntactic_error_list, semantic_error_list,
+        global_config.main_environment = Environment(None)
+        return ParseResult(global_config.lexic_error_list,
+                           global_config.syntactic_error_list, global_config.semantic_error_list,
                            ast_tree='digraph G {\na[label="PARSE ERROR :( (semantic)"]\n}',
                            console_output=global_config.console_output, symbol_table=[])
+
+    except SyntacticError as err:
+        print("SYNTACTIC ERROR:")
+        print(err.reason)
+
+        global_config.main_environment = Environment(None)
+        return ParseResult(global_config.lexic_error_list,
+                           global_config.syntactic_error_list, global_config.semantic_error_list,
+                           ast_tree='digraph G {\na[label="PARSE ERROR :( (syntactic)"]\n}',
+                           console_output=global_config.console_output, symbol_table=[])
+
 
     except Exception as err:
         print("Unhandled (lexic?)/semantic error?")
@@ -73,8 +85,9 @@ def parse_code(code_string: str) -> ParseResult:
 
         # TODO implement semantic differentiation for missing token / unexpected one (in case i missed one)
 
-        main_environment = Environment(None)
-        return ParseResult(lexic_error_list, syntactic_error_list, semantic_error_list,
+        global_config.main_environment = Environment(None)
+        return ParseResult(global_config.lexic_error_list,
+                           global_config.syntactic_error_list, global_config.semantic_error_list,
                            ast_tree='digraph G {\na[label="PARSE ERROR :( (syntactic)"]\n}',
                            console_output=global_config.console_output, symbol_table=[])
 
@@ -141,21 +154,25 @@ def parse_code(code_string: str) -> ParseResult:
 
         print("#####################Errores Lexicos:###################")
         lexic: LexicError
-        for lexic in lexic_error_list:
+        for lexic in global_config.lexic_error_list:
             print("[row:%s,column:%s]Error Lexico: <%s> no reconocido", lexic.row, lexic.column, lexic.reason)
 
         print("#####################Errores Sintactico:###################")
         syntactic: SyntacticError
-        for syntactic in syntactic_error_list:
+        for syntactic in global_config.syntactic_error_list:
             print("[row:%s,column:%s]ERROR:%s", syntactic.row, syntactic.column, syntactic.reason)
 
         print("#####################Errores Semantico:###################")
         semantic: SemanticError
-        for semantic in semantic_error_list:
+        for semantic in global_config.semantic_error_list:
             print("[row:%s,column:%s]ERROR:%s", semantic.row, semantic.column, semantic.reason)
 
+
+        print(global_config.console_output)
+
         global_config.main_environment = Environment(None)
-        return ParseResult(lexic_error_list, syntactic_error_list, semantic_error_list,
+        return ParseResult(global_config.lexic_error_list,
+                           global_config.syntactic_error_list, global_config.semantic_error_list,
                            ast_tree=generate_ast_tree(instruction_set),
                            console_output=global_config.console_output,
                            symbol_table=generate_symbol_table(instruction_set, "Main"))

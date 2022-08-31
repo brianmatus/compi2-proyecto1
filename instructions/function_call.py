@@ -110,3 +110,5 @@ class FunctionCallI(Instruction):
                     raise SemanticError(error_msg, self.line, self.column)
 
                 return ExecReturn(result._type, result.value, False, False, False)
+
+        return ExecReturn(ElementType.VOID, None, False, False, False)
