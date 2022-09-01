@@ -25,7 +25,7 @@ reserved = {
     'while': 'WHILE',
     'loop': 'LOOP',
     'for': 'FOR',
-    'in': 'in',
+    'in': 'IN',
 }
 
 tokens = [

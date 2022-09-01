@@ -40,7 +40,7 @@ class MatchExpression(Expression):
 
 
         for clause in self.clauses:
-            print("evaluating class")
+            # print("evaluating clauss")
 
             environment.remove_child(clause.environment)
             clause.environment = Environment(environment)

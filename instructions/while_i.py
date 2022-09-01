@@ -21,7 +21,7 @@ class WhileI(Instruction):
         self.environment = Environment(None)  # default, for compiler to recognize it
 
     def execute(self, env: Environment) -> ExecReturn:
-        print("while")
+        # print("while")
         env.remove_child(self.environment)
         self.environment = Environment(env)
         env.children_environment.append(self.environment)

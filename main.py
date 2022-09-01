@@ -129,12 +129,7 @@ def parse_code(code_string: str) -> ParseResult:
         for instruction in main_func.instructions:
             instruction.execute(main_func.environment)
 
-
-
-
-
-
-
+        print("-------------------------------------------------------------------------------------------------------")
         # print("Resulting AST:")
         # print(generate_ast_tree(instruction_set))
         print("Resulting environment:")

@@ -34,7 +34,7 @@ class ConditionalExpression(Expression):
                 raise SemanticError(error_msg, self.line, self.column)
 
         for clause in self.clauses:
-            print("evaluating class")
+            # print("evaluating clauss")
 
             environment.remove_child(clause.environment)
             clause.environment = Environment(environment)
@@ -42,7 +42,7 @@ class ConditionalExpression(Expression):
 
             # Reached Else Clause
             if clause.condition is None:
-                print("reached else")
+                # print("reached else")
                 return clause.expr.execute(environment)
 
             result = clause.condition.execute(clause.environment)

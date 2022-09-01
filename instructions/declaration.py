@@ -45,6 +45,17 @@ class Declaration(Instruction):
         expr: ValueTuple = self.expression.execute(env)
         # print(expr)
 
+        # We have an impostor?
+        if isinstance(expr.value, list):
+            # This should be and inferred array, so no normal declaration
+            dimensions = global_config.extract_dimensions_to_dict(expr.value)
+            tmp = expr
+            while (tmp._type == ElementType.ARRAY_EXPRESSION):
+                tmp = tmp.value[0]
+            the_type = tmp._type
+            env.save_variable_array(self._id, the_type, dimensions, expr.value, False, True, self.line, self.column)
+            return ExecReturn(ElementType.BOOL, True, False, False, False)
+
         # Infer if not explicitly specified
         if self._type is None:
             self._type = expr._type
@@ -57,7 +68,7 @@ class Declaration(Instruction):
                               is_mutable=self.is_mutable, is_init=True, is_array=False,
                               line=self.line, column=self.column)
 
-            return ExecReturn(self._type, True, False, False, False)
+            return ExecReturn(ElementType.BOOL, True, False, False, False)
 
         # Exceptions of same type:
 
@@ -67,7 +78,7 @@ class Declaration(Instruction):
                               is_mutable=self.is_mutable, is_init=True, is_array=False,
                               line=self.line, column=self.column)
 
-            return ExecReturn(self._type, True, False, False, False)
+            return ExecReturn(ElementType.BOOL, True, False, False, False)
 
 
         # usize var_type with int expr_type
@@ -86,7 +97,7 @@ class Declaration(Instruction):
                                   is_mutable=self.is_mutable, is_init=True, is_array=False,
                                   line=self.line, column=self.column)
 
-                return ExecReturn(self._type, True, False, False, False)
+                return ExecReturn(ElementType.BOOL, True, False, False, False)
 
 
 

@@ -22,13 +22,15 @@ class Logic(Expression):
     def execute(self, environment: Environment) -> ValueTuple:
         error_msg = ""
 
+
+
         left = self.left.execute(environment)
         right = self.right.execute(environment)
 
-        print("----------------------------------------")
-        print("Logical")
-        print(left)
-        print(right)
+        # print("----------------------------------------")
+        # print("Logical")
+        # print(left)
+        # print(right)
 
 
         a = left._type == ElementType.INT and right._type == ElementType.INT

@@ -32,21 +32,20 @@ class ParameterFunctionCallE(Expression):
 
     def execute(self, environment: Environment) -> ValueTuple:
 
-        print("-------------------param func call-------------------")
+        # print("-------------------param func call-------------------")
         # print(self.variable_id)
         # print(self.function_id)
         # print(self.params)
 
-        print(self.variable_id)
-        print(type(self.variable_id))
+        # print(self.variable_id)
+        # print(type(self.variable_id))
 
         the_symbol = None
 
         if isinstance(self.variable_id, ArrayReference):
 
-            print("array reference!")
+            # print("array reference!")
             result = self.variable_id.execute(environment)
-            a = print(global_config.value_tuple_array_to_array(result.value))
 
             if isinstance(result.value, list):
                 the_symbol = ArraySymbol(self.variable_id._id, result._type, self.variable_id.indexes, result.value, True, False)

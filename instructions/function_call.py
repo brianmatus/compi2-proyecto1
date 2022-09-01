@@ -69,7 +69,7 @@ class FunctionCallI(Instruction):
             c = param.is_array and not self.params[i].as_reference
             d = not param.is_array and self.params[i].as_reference
 
-            print(f"as reference check:{c} | {d}")
+            # print(f"as reference check:{c} | {d}")
             if c or d:
                 error_msg = f"La función {self._id} fue llamada con un array sin ser usado como referencia." \
                             f" Usa el operador & para pasar un array (ej.: &array)"

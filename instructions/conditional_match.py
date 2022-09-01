@@ -27,7 +27,7 @@ class MatchI(Instruction):
         compare_to_result = self.compare_to.execute(env)
 
         for clause in self.clauses:
-            print("evaluating class")
+            # print("evaluating class")
 
             env.remove_child(clause.environment)
             clause.environment = Environment(env)
@@ -35,7 +35,7 @@ class MatchI(Instruction):
 
             # Reached Else Clause
             if clause.condition is None:
-                print("reached else")
+                # print("reached else")
                 instruction: Instruction
                 for instruction in clause.instructions:
                     result = instruction.execute(clause.environment)

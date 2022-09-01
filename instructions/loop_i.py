@@ -14,14 +14,13 @@ from errors.semantic_error import SemanticError
 
 
 class LoopI(Instruction):
-    def __init__(self, condition: Expression, instructions: List[Instruction], line: int, column: int):
+    def __init__(self, instructions: List[Instruction], line: int, column: int):
         super().__init__(line, column)
-        self.condition: Expression = condition
         self.instructions: List[Instruction] = instructions
         self.environment = Environment(None)  # default, for compiler to recognize it
 
     def execute(self, env: Environment) -> ExecReturn:
-        print("while")
+        # print("loop")
         env.remove_child(self.environment)
         self.environment = Environment(env)
         env.children_environment.append(self.environment)
@@ -44,7 +43,7 @@ class LoopI(Instruction):
                 raise SemanticError(error_msg, -1, -1)
 
 
-        # no return?
+        # no return? Shouldn't happen
         return ExecReturn(ElementType.BOOL, False, False, False, False)
 
     def execute_instructions(self):

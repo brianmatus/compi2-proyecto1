@@ -21,7 +21,7 @@ class Conditional(Instruction):
 
     def execute(self, env: Environment) -> ExecReturn:
         for clause in self.clauses:
-            print("evaluating class")
+            # print("evaluating class")
 
             env.remove_child(clause.environment)
             clause.environment = Environment(env)
@@ -29,7 +29,7 @@ class Conditional(Instruction):
 
             # Reached Else Clause
             if clause.condition is None:
-                print("reached else")
+                # print("reached else")
                 instruction: Instruction
                 for instruction in clause.instructions:
                     result = instruction.execute(clause.environment)

@@ -5,10 +5,11 @@ from element_types.element_type import ElementType
 from returns.ast_return import ASTReturn
 import global_config
 
+
 class Literal(Expression):
 
     def __init__(self, value, _type: ElementType, line: int, column: int):
-        super(Literal, self).__init__(line, column)
+        super().__init__(line, column)
         self.value = value
         self._type = _type
 

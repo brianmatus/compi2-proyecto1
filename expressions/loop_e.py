@@ -22,7 +22,7 @@ class LoopE(Instruction):
         self.environment = Environment(None)  # default, for compiler to recognize it
 
     def execute(self, env: Environment) -> ValueTuple:
-        print("while")
+        # print("loop_e")
         env.remove_child(self.environment)
         self.environment = Environment(env)
         env.children_environment.append(self.environment)

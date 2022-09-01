@@ -12,6 +12,7 @@ from elements.match_expression_clause import MatchExpressionClause
 from elements.env import Environment
 from element_types.func_call_arg import FuncCallArg
 from elements.id_tuple import IDTuple
+from instructions.for_in_i import ForInRanged
 
 # ################################INSTRUCTIONS#########################################
 from element_types.array_def_type import ArrayDefType
@@ -29,6 +30,7 @@ from instructions.loop_i import LoopI
 from instructions.return_i import ReturnI
 from instructions.continue_i import ContinueI
 from instructions.break_i import BreakI
+from instructions.for_in_i import ForInI
 # ################################EXPRESSIONS#########################################
 from element_types.arithmetic_type import ArithmeticType
 from element_types.logic_type import LogicType
@@ -102,6 +104,7 @@ def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add a
     | break_i SEMICOLON
     | while_i
     | loop_i
+    | for_in_i
     """
     p[0] = p[1]
 
@@ -122,9 +125,20 @@ def p_no_semicolon_instruction(p):  # TODO all added to p_instruction should be 
     | break_i
     | while_i
     | loop_i
+    | for_in_i
     """
     p[0] = p[1]
 
+
+# ###############################################LOOP STATEMENT#########################################################
+def p_for_in_i_1(p):
+    """for_in_i : FOR ID IN expression KEY_O instructions KEY_C"""
+    p[0] = ForInI(p[2], p[4], p[6], p.lineno(1), -1)
+
+
+def p_for_in_i_2(p):
+    """for_in_i : FOR ID IN expression DOT DOT expression KEY_O instructions KEY_C"""
+    p[0] = ForInI(p[2], ForInRanged(p[4], p[7]), p[9], p.lineno(1), -1)
 
 # ###############################################LOOP STATEMENT#########################################################
 def p_loop_i(p):

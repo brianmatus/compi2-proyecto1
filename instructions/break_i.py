@@ -14,9 +14,9 @@ class BreakI(Instruction):
     def execute(self, env: Environment) -> ExecReturn:
 
         if self.expr is None:
-            print("breaking with none")
+            # print("breaking with none")
             return ExecReturn(ElementType.VOID, None, False, True, False)
 
         result = self.expr.execute(env)
-        print(f'breaking with v:{result.value} t:{result._type}')
+        # print(f'breaking with v:{result.value} t:{result._type}')
         return ExecReturn(result._type, result.value, False, True, False)

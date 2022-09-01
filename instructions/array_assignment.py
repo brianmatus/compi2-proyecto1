@@ -65,7 +65,7 @@ class ArrayAssignment(Instruction):
 
         else:
             r = global_config.match_array_type(the_symbol._type, expr.value)
-            print(f'Type match:{r}')
+            # print(f'Type match:{r}')
 
             if not r:
                 error_msg = f'Uno o mas elementos del array no concuerdan en tipo con su definición'
@@ -86,7 +86,7 @@ class ArrayAssignment(Instruction):
 
         resulting = the_symbol
         for i in range(len(dimensions)):
-            print(f"requested:{dimensions[i]} existing:{the_symbol.dimensions[i + 1]}")
+            # print(f"requested:{dimensions[i]} existing:{the_symbol.dimensions[i + 1]}")
             if dimensions[i] > the_symbol.dimensions[i + 1]:
                 error_msg = f'Las dimensiones del array son menores a las ingresadas'
                 log_semantic_error(error_msg, self.line, self.column)
