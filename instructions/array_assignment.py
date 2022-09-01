@@ -77,7 +77,8 @@ class ArrayAssignment(Instruction):
 
         # Too much dimensions?
         if len(dimensions) > len(the_symbol.dimensions):
-            error_msg = f'La profundidad del array es menor a la ingresada'
+            error_msg = f'La profundidad del array es menor a la ingresada' \
+                        f'({len(dimensions)} > {len(the_symbol.dimensions)})'
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 

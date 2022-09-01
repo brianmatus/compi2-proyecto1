@@ -44,6 +44,7 @@ class FunctionCallI(Instruction):
 
 
         intermediate_env = Environment(main_environment)
+        intermediate_env.parent_environment = main_environment
 
         for i in range(len(self.params)):
 
@@ -87,9 +88,11 @@ class FunctionCallI(Instruction):
 
             # print(f'or forgiveness:{not param.is_mutable}')
 
+            # calculated = global_config.fn_call_extract_value_tuple_dimensions_to_dict(given)
+            calculated = global_config.extract_dimensions_to_dict(global_config.value_tuple_array_to_array(given.value))
 
             intermediate_env.save_variable_array(param._id, param._type,
-                                                 global_config.extract_dimensions_to_dict(given.value), given.value,
+                                                 calculated, given.value,
                                                  param.is_mutable, True, self.line, self.column)
 
         instruction: Instruction

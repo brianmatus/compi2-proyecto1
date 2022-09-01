@@ -26,6 +26,8 @@ reserved = {
     'loop': 'LOOP',
     'for': 'FOR',
     'in': 'IN',
+    'pow': 'POW',
+    'powf': 'POWF',
 }
 
 tokens = [

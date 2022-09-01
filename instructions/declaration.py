@@ -83,8 +83,6 @@ class Declaration(Instruction):
 
         # usize var_type with int expr_type
 
-        # print(self._type == ElementType.USIZE)
-        # print(expr._type == ElementType.INT)
 
         if self._type == ElementType.USIZE and expr._type == ElementType.INT:
 

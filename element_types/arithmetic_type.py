@@ -6,7 +6,8 @@ ArithmeticType = Enum('ArithmeticType',
                        "SUB",
                        "MULT",
                        "DIV",
-                       "POW",
+                       "POW_INT",
+                       "POW_FLOAT",
                        "MOD",
                        "NEG"
                    ]))

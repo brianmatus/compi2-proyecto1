@@ -5,6 +5,7 @@ from elements.value_tuple import ValueTuple
 from element_types.element_type import ElementType
 from returns.ast_return import ASTReturn
 from element_types.arithmetic_type import ArithmeticType
+import math
 
 import global_config
 
@@ -27,6 +28,25 @@ class Arithmetic(Expression):
         right: ValueTuple = self.right.execute(environment)
 
         match self._type:
+
+            case ArithmeticType.POW_INT:
+
+                if left._type == ElementType.INT and right._type == ElementType.INT:
+                    return ValueTuple(value=math.pow(left.value, right.value), _type=ElementType.INT, is_mutable=False)
+
+                error_msg = f"Operacion Aritmetica POW {left._type.name} <-> {right._type.name} es invalida."
+                global_config.log_semantic_error(error_msg, self.line, self.column)
+                raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+
+            case ArithmeticType.POW_FLOAT:
+
+                if left._type == ElementType.FLOAT and right._type == ElementType.FLOAT:
+                    return ValueTuple(value=math.pow(left.value, right.value), _type=ElementType.FLOAT, is_mutable=False)
+
+                error_msg = f"Operacion Aritmetica POWF {left._type.name} <-> {right._type.name} es invalida."
+                global_config.log_semantic_error(error_msg, self.line, self.column)
+                raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+
             case ArithmeticType.SUM:
 
                 # INT
