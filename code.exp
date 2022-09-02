@@ -1,122 +1,84 @@
-fn llenarMat(a: &mut [[i64]], b: &mut [[i64]]) {
-    for i in 0..a.len() {
-        for j in 0..a.len() {
-            a[i][j] = (j as i64) * 3 + (i as i64);
-            b[i][j] = i64::pow((i as i64), 3) - i64::pow((j as i64), 2);
+/* imprime los puntos por curso de cada estudiante */
+fn imprimir_punteo(ests: &mut [String; 4], cursos: &mut [&str; 3], notas: &mut [[[i64;5];3];4]) {
+    let ponderacion: [&str; 5] = ["1er parcial", "2do parcial", "3er parcial", "Lab", "Examen final"];
+    println!("{:?}", ponderacion);
+    println!("");
+    for i in 0..ests.len() {
+        println!("Estudinte: ");
+        println!("{}", ests[i]);
+        for j in 0..cursos.len() {
+            let cad: String = "Curso: ".to_string() + cursos[j];
+            println!("{}", cad);
+            println!("{:?}", notas[i][j]);
         }
+        println!("");
     }
 }
 
-fn sumarMat(a: &mut [[i64]], b: &mut [[i64]], r: &mut [[i64]]) {
-    for i in 0..3 {
-        for j in 0..3 {
-            r[i][j] = a[i][j] + b[i][j];
+/* imprime la nota total por curso de cada estudiante*/
+/* parciales 43, lab sobre 32 y examen final 25*/
+fn imprimir_nota_final(ests: &mut [String; 4], cursos: &mut [&str; 3], notas: &mut [[[i64;5];3];4]) {
+    for i in 0..ests.len() {
+        for j in 0..cursos.len() {
+            let mut nota_final: f64 = 0.0;
+            for k in 0..notas[i][j].len() {
+                let nota: f64 =
+                    if k == notas[i][j].len() - 1 {
+                        let efinal: f64 = 25.0 / 100.0;
+                        (notas[i][j][k] as f64) * efinal
+                    } else if k == notas[i][j].len() - 2 {
+                        let lab: f64 = 32.0 / 100.0;
+                        (notas[i][j][k] as f64) * lab
+                    } else {
+                        let parcial: f64 = (43.0 / 3.0) / 100.0;
+                        (notas[i][j][k] as f64) * parcial
+                    };
+                nota_final = nota_final + nota;
+            }
+
+            let cad: String = ests[i].clone().to_string() + " -> Curso: " + cursos[j];
+            println!("{}", cad);
+            println!("{}", nota_final);
         }
+        println!("");
     }
 }
 
-fn restarMat(a: &mut [[i64]], b: &mut [[i64]], r: &mut [[i64]]) {
-    for i in 0..3 {
-        for j in 0..3 {
-            r[i][j] = a[i][j] - b[i][j];
-        }
-    }
-}
-
-fn multMat(a: &mut [[i64]], b: &mut [[i64]], r: &mut [[i64]]) {
-    for i in 0..3 {
-        for j in 0..3 {
-            for k in 0..3 {
-                r[i][j] = r[i][j] + a[i][k] * b[k][j];
+/* correccion de notas */
+fn corregir_notas(corregir: &mut [[i64;5];3], notas: &mut [[[i64;5];3];4]) {
+    for i in 0..notas.len() {
+        for j in 0..notas[i].len() {
+            for k in 0..notas[i][j].len() {
+                notas[i][j][k] = corregir[j][k];
             }
         }
     }
 }
 
-fn limpiarMat(a: &mut [[i64]]) {
-    for i in 0..3 {
-        for j in 0..3 {
-            a[i][j] = 0;
-        }
-    }
-}
-
-fn printMat(r: &mut [[i64]]) {
-    for i in 0..r.len() {
-        println!("{:?}", r[i]);
-    }
-}
-
 fn main() {
-    let mut matA: [[i64; 3]; 3] = [[0,0,0],[0,0,0],[0,0,0]];
-    let mut matB: [[i64; 3]; 3] = [[0,0,0],[0,0,0],[0,0,0]];
-    let mut matR: [[i64; 3]; 3] = [[0,0,0],[0,0,0],[0,0,0]];
+    let mut estudiantes: [String; 4] = ["Lorenza".to_string(), "Rosendo".to_string(), "Fermina".to_string(), "Markel".to_string()];
 
-    /* llenar matriz */
-    llenarMat(&mut matA, &mut matB);
+    let mut cursos: [&str; 3] = ["Arqui1", "Archivos", "Compi2"];
 
-    println!("Matriz A");
-    printMat(&mut matA);
-    println!("");
-    println!("Matriz B");
-    printMat(&mut matB);
-    println!("");
-    println!("Matriz R");
-    printMat(&mut matR);
-    println!("");
+    let mut notas_buenas: [[i64;5];3] = [
+        [53,88,95,89,75],
+        [81,51,57,67,93],
+        [94,74,58,84,100]
+    ];
 
-    /* sumar matriz */
-    sumarMat(&mut matA, &mut matB, &mut matR);
-    println!("R = A + B");
-    printMat(&mut matR);
-    println!("");
+    let mut notas: [[[i64;5];3];4] = [
+        [[37,49,61,29,44],[56,60,51,68,70],[47,15,39,17,74]],
+        [[69,74,52,34,36],[24,44,50,18,76],[74,60,32,63,78]],
+        [[78,14,23,52,33],[28,79,77,55,24],[23,79,47,62,44]],
+        [[73,53,11,49,52],[29,16,65,34,12],[72,69,30,44,37]]
+    ];
 
-    /* restar matriz */
-    limpiarMat(&mut matR);
-    restarMat(&mut matA, &mut matB, &mut matR);
-    println!("R = A - B");
-    printMat(&mut matR);
-    println!("");
-
-    /* multiplicar matriz */
-    limpiarMat(&mut matR);
-    multMat(&mut matA, &mut matB, &mut matR);
-    println!("R = A * B");
-    printMat(&mut matR);
-    println!("");
+    println!("\nImprimir notas por curso y estudiantes\n");
+    imprimir_punteo(&mut estudiantes, &mut cursos, &mut notas);
+    println!("\nImprimir nota final por curso y estudiantes\n");
+    imprimir_nota_final(&mut estudiantes, &mut cursos, &mut notas);
+    println!("\nMejorar notas de todos los cursos\n");
+    corregir_notas(&mut notas_buenas, &mut notas);
+    println!("\nImprimir nota final actualizada por curso y estudiantes\n");
+    imprimir_nota_final(&mut estudiantes, &mut cursos, &mut notas);
 }
-
-
-/*
-
-Matriz A
-[0, 3, 6]
-[1, 4, 7]
-[2, 5, 8]
-
-Matriz B
-[0, -1, -4]
-[1, 0, -3]
-[8, 7, 4]
-
-Matriz R
-[0, 0, 0]
-[0, 0, 0]
-[0, 0, 0]
-
-R = A + B
-[0, 2, 2]
-[2, 4, 4]
-[10, 12, 12]
-
-R = A - B
-[0, 4, 10]
-[0, 4, 10]
-[-6, -2, 4]
-
-R = A * B
-[51, 42, 15]
-[60, 48, 12]
-[69, 54, 9]
-
-*/

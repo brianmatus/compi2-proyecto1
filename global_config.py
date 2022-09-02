@@ -1,5 +1,5 @@
 import secrets
-from typing import List
+from typing import List, Tuple
 
 from element_types.element_type import ElementType
 
@@ -39,6 +39,44 @@ def is_arithmetic_pure_literals(expr) -> bool:
     # in for example (and the reason this is implemented) to allow usize arithmetic with literals
 
     return False
+
+
+def array_type_to_dimension_dict_and_type(arr_type) -> Tuple[dict, ElementType]:
+
+    from element_types.array_def_type import ArrayDefType
+    from elements.env import Environment
+    dic = {}
+    i = 1
+    tmp: ArrayDefType = arr_type
+
+    while True:
+        if isinstance(tmp.content_type, ArrayDefType):
+            # FIXME Because of env, should happened at runtime? It's safe cause always literal?
+            dic[i] = tmp.size_expr.execute(Environment(None)).value
+            i += 1
+            tmp = tmp.content_type
+            continue
+
+        dic[i] = tmp.size_expr.execute(Environment(None)).value
+
+        dic["embedded_type"] = tmp.content_type  # For backwards compatibility
+        return dic, tmp.content_type
+
+    # print("aqui la wea")
+    # print(arr_type)
+    return ElementType.VOID, {}
+
+
+def match_deepness(supposed: int, arr: List[ValueTuple]):
+
+    i = 0
+    tmp = arr
+    while True:
+
+        if not isinstance(tmp, list):
+            return i == supposed
+        tmp = tmp[0].value
+        i += 1
 
 
 def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:

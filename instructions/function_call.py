@@ -51,12 +51,33 @@ class FunctionCallI(Instruction):
             param = func.params[i]
             given = self.params[i].expr.execute(env)
 
-            # print("aqui?")
+            # print("aqui? piti")
             # print(param._type)
             # print(given._type)
 
+            if param.is_array:
+
+                to_m = param.dimensions.copy()
+                to_m.pop("embedded_type")
+                match_expr = False
+                # print(param.dimensions[1])
+                if param.dimensions[1] is None:
+                    match_expr = global_config.match_deepness(len(list(to_m.values())), given.value)
+                    # print("not given")
+                    # print(match_expr)
+
+                else:
+                    match_expr = global_config.match_dimensions(list(to_m.values()), given.value)
+
+                if not match_expr:
+                    error_msg = f"La función {self._id} fue llamada con un tamaño incorrecto de array. Arg #{i + 1}"
+                    log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
+
             if param._type != given._type:
-                error_msg = f"La función {self._id} fue llamada con un tipo incorrecto de argumento. Arg #{i+1}"
+                error_msg = f"La función {self._id} fue llamada con un tipo incorrecto de argumento. Arg #{i+1}" \
+                            f"({param._type.name} <-> {given._type})"
                 log_semantic_error(error_msg, self.line, self.column)
                 raise SemanticError(error_msg, self.line, self.column)
 
@@ -86,14 +107,16 @@ class FunctionCallI(Instruction):
                     log_semantic_error(error_msg, self.line, self.column)
                     raise SemanticError(error_msg, self.line, self.column)
 
-            # print(f'or forgiveness:{not param.is_mutable}')
 
-            # calculated = global_config.fn_call_extract_value_tuple_dimensions_to_dict(given)
-            calculated = global_config.extract_dimensions_to_dict(global_config.value_tuple_array_to_array(given.value))
+                calculated = global_config.extract_dimensions_to_dict(global_config.value_tuple_array_to_array(given.value))
 
-            intermediate_env.save_variable_array(param._id, param._type,
-                                                 calculated, given.value,
-                                                 param.is_mutable, True, self.line, self.column)
+                intermediate_env.save_variable_array(param._id, param._type,
+                                                     calculated, given.value,
+                                                     param.is_mutable, True, self.line, self.column)
+                continue
+
+            intermediate_env.save_variable(param._id, param._type, given.value, param.is_mutable, True, False,
+                                           self.line, self.column)
 
         instruction: Instruction
         for instruction in func.instructions:

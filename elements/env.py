@@ -23,18 +23,16 @@ class Environment:
             the_symbol = self.symbol_table.get(_id)
 
             if the_symbol is not None:
-                error_msg = "Variable <" + _id + "> ya definida en el ambito actual. ALLOW_NESTED_VARIABLE_OVERRIDE="\
-                            + global_config.ALLOW_NESTED_VARIABLE_OVERRIDE
-
+                error_msg = f"Variable <{_id }> ya definida en el ambito actual." \
+                            f"ALLOW_NESTED_VARIABLE_OVERRIDE={global_config.ALLOW_NESTED_VARIABLE_OVERRIDE}"
                 global_config.log_semantic_error(error_msg, line, column)
                 raise SemanticError(error_msg, line, column)
 
         else:
             the_symbol = self.recursive_get(_id)
             if the_symbol is not None:
-                error_msg = "Variable <" + _id + "> ya definida en el ambito actual. ALLOW_NESTED_VARIABLE_OVERRIDE="\
-                            + global_config.ALLOW_NESTED_VARIABLE_OVERRIDE
-
+                error_msg = f"Variable <{_id }> ya definida en el ambito actual." \
+                            f"ALLOW_NESTED_VARIABLE_OVERRIDE={global_config.ALLOW_NESTED_VARIABLE_OVERRIDE}"
                 global_config.log_semantic_error(error_msg, line, column)
                 raise Exception(error_msg)
 
