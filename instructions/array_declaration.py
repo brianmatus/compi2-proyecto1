@@ -82,6 +82,8 @@ class ArrayDeclaration(Instruction):
         env.save_variable_array(self._id, self.var_type, self.dimensions, self.values, self.is_mutable, True,
                                 self.line, self.column)
 
+        return ExecReturn(ElementType.BOOL, True, False, False, False)
+
 
 
 

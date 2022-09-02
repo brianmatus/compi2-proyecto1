@@ -56,19 +56,19 @@ class Arithmetic(Expression):
                 # USIZE INT(literals)
                 if left._type == ElementType.USIZE and right._type == ElementType.INT:
                     if global_config.is_arithmetic_pure_literals(self.right):
-                        if left.value + right.value < 0:
-                            error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
-                            global_config.log_semantic_error(error_msg, self.line, self.column)
-                            raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+                        # if left.value + right.value < 0:
+                        #     error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
+                        #     global_config.log_semantic_error(error_msg, self.line, self.column)
+                        #     raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
                         return ValueTuple(value=left.value + right.value, _type=ElementType.USIZE, is_mutable=False)
 
                 # INT(literals) USIZE
                 if left._type == ElementType.INT and right._type == ElementType.USIZE:
                     if global_config.is_arithmetic_pure_literals(self.left):
-                        if left.value + right.value < 0:
-                            error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
-                            global_config.log_semantic_error(error_msg, self.line, self.column)
-                            raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+                        # if left.value + right.value < 0:
+                        #     error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
+                        #     global_config.log_semantic_error(error_msg, self.line, self.column)
+                        #     raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
                         return ValueTuple(value=left.value + right.value, _type=ElementType.USIZE, is_mutable=False)
 
                 # FLOAT
@@ -109,10 +109,10 @@ class Arithmetic(Expression):
                 # INT(literals) USIZE
                 if left._type == ElementType.INT and right._type == ElementType.USIZE:
                     if global_config.is_arithmetic_pure_literals(self.left):
-                        if left.value - right.value < 0:
-                            error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
-                            global_config.log_semantic_error(error_msg, self.line, self.column)
-                            raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+                        # if left.value - right.value < 0:
+                        #     error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
+                        #     global_config.log_semantic_error(error_msg, self.line, self.column)
+                        #     raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
                         return ValueTuple(value=left.value - right.value, _type=ElementType.USIZE, is_mutable=False)
 
                 error_msg = f"Operacion Aritmetica RESTA {left._type.name} <-> {right._type.name} es invalida."
@@ -130,19 +130,19 @@ class Arithmetic(Expression):
                 # USIZE INT(literals)
                 if left._type == ElementType.USIZE and right._type == ElementType.INT:
                     if global_config.is_arithmetic_pure_literals(self.right):
-                        if left.value * right.value < 0:
-                            error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
-                            global_config.log_semantic_error(error_msg, self.line, self.column)
-                            raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+                        # if left.value * right.value < 0:
+                        #     error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
+                        #     global_config.log_semantic_error(error_msg, self.line, self.column)
+                        #     raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
                         return ValueTuple(value=left.value * right.value, _type=ElementType.USIZE, is_mutable=False)
 
                 # INT(literals) USIZE
                 if left._type == ElementType.INT and right._type == ElementType.USIZE:
                     if global_config.is_arithmetic_pure_literals(self.left):
-                        if left.value + right.value < 0:
-                            error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
-                            global_config.log_semantic_error(error_msg, self.line, self.column)
-                            raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+                        # if left.value + right.value < 0:
+                        #     error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
+                        #     global_config.log_semantic_error(error_msg, self.line, self.column)
+                        #     raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
                         return ValueTuple(value=left.value * right.value, _type=ElementType.USIZE, is_mutable=False)
 
                 error_msg = f"Operacion Aritmetica MULTIPLICACION {left._type.name} <-> {right._type.name} es invalida."
@@ -150,6 +150,13 @@ class Arithmetic(Expression):
                 raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
 
             case ArithmeticType.DIV:
+
+
+                if right.value == 0:
+                    error_msg = f"Operacion Aritmetica DIV no puede ser divisor 0."
+                    global_config.log_semantic_error(error_msg, self.line, self.column)
+                    raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+
                 # INT
                 if left._type == ElementType.INT and right._type == ElementType.INT:
                     return ValueTuple(value=left.value / right.value, _type=ElementType.FLOAT, is_mutable=False)

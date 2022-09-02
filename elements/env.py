@@ -75,7 +75,7 @@ class Environment:
 
         # "Mutable"(const) check
         if not the_symbol.is_mutable and the_symbol.is_init:
-            error_msg = f'Variable {_id} es constante y no puede ser asignado un valor nuevo'
+            error_msg = f'Variable <{_id}> es constante y no puede ser asignado un valor nuevo'
             global_config.log_semantic_error(error_msg, line, column)
             raise SemanticError(error_msg, line, column)
 

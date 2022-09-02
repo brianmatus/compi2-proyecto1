@@ -59,11 +59,18 @@ class ParameterFunctionCallE(Expression):
         elif isinstance(self.variable_id, Literal):
             if self.function_id == "to_string":
                 r = self.variable_id.execute(environment)
-                return ValueTuple(r.value, ElementType.STRING_CLASS, False)
+                return ValueTuple(str(r.value), ElementType.STRING_CLASS, False)
 
         elif isinstance(self.variable_id, TypeCasting):
             r = self.variable_id.execute(environment)
             the_symbol = Symbol("type_casting_forced_symbol", r._type, r.value, True, False)
+
+        elif isinstance(self.variable_id, ParameterFunctionCallE):
+            # FIXME check resulting function type
+            if self.function_id == "to_string":
+                r = self.variable_id.execute(environment)
+                return ValueTuple(str(r.value), ElementType.STRING_CLASS, False)
+
 
         else:
             the_symbol = environment.recursive_get(self.variable_id)

@@ -69,7 +69,7 @@ def parse_code(code_string: str) -> ParseResult:
 
     except SyntacticError as err:
         print("SYNTACTIC ERROR:")
-        print(err.reason)
+        print(err)
 
         global_config.main_environment = Environment(None)
         return ParseResult(global_config.lexic_error_list,
@@ -197,6 +197,7 @@ def generate_instruction_set_ast(instruction_set: List[Instruction], father_ref:
                 f'{father_ref} -> {instruction_ast.head_ref}\n'
 
     return _str
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

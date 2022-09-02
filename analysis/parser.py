@@ -804,26 +804,35 @@ def p_default_case_expr(p):
 def p_if_else_elseif_statement_1_expr(p):
     """if_else_elseif_expr : if_s_expr"""
     p[0] = ConditionalExpression(p[1], p.lineno(1), -1)
+    print("cond expr 1")
 
 
 def p_if_else_elseif_statement_2_expr(p):
     """if_else_elseif_expr : if_s_expr else_s_expr"""
     p[0] = ConditionalExpression(p[1] + p[2], p.lineno(1), -1)
+    print("cond expr 2")
 
 
 def p_if_else_elseif_statement_3_expr(p):
     """if_else_elseif_expr : if_s_expr else_ifs_expr"""
     p[0] = ConditionalExpression(p[1] + p[2], p.lineno(1), -1)
+    print("cond expr 3")
 
 
 def p_if_else_elseif_statement_4_expr(p):
     """if_else_elseif_expr : if_s_expr else_ifs_expr else_s_expr"""
     p[0] = ConditionalExpression(p[1] + p[2] + p[3], p.lineno(1), -1)
+    print("cond expr 4")
 
 
-def p_if_statement_expr(p):
+def p_if_statement_expr_1(p):
     """if_s_expr : IF expression KEY_O expression KEY_C"""
-    p[0] = [ConditionExpressionClause(p[2], p[4], Environment(None))]
+    p[0] = [ConditionExpressionClause(p[2], [], p[4], Environment(None))]
+
+
+def p_if_statement_expr_2(p):
+    """if_s_expr : IF expression KEY_O instructions expression KEY_C"""
+    p[0] = [ConditionExpressionClause(p[2], p[4], p[5], Environment(None))]
 
 
 def p_elseifs_r_expr(p):
@@ -836,24 +845,33 @@ def p_elseifs_expr(p):
     p[0] = p[1]
 
 
-def p_elseif_expr(p):
+def p_elseif_expr_1(p):
     """else_if_expr : ELSE IF expression KEY_O expression KEY_C"""
-    p[0] = [ConditionExpressionClause(p[3], p[5], Environment(None))]
+    p[0] = [ConditionExpressionClause(p[3], [], p[5], Environment(None))]
 
 
-def p_else_expr(p):
+def p_elseif_expr_2(p):
+    """else_if_expr : ELSE IF expression KEY_O instructions expression KEY_C"""
+    p[0] = [ConditionExpressionClause(p[3], p[5], p[6], Environment(None))]
+
+
+def p_else_expr_1(p):
     """else_s_expr : ELSE KEY_O expression KEY_C"""
-    p[0] = [ConditionExpressionClause(None, p[3], Environment(None))]
+    p[0] = [ConditionExpressionClause(None, [], p[3], Environment(None))]
 
+
+def p_else_expr_2(p):
+    """else_s_expr : ELSE KEY_O instructions expression KEY_C"""
+    p[0] = [ConditionExpressionClause(None, p[3], p[4], Environment(None))]
 
 
 def p_epsilon(p):
     """epsilon :"""
     pass
 
+
 def p_error(p):
-    print("Syntax error::Unexpected token")
-    print(p)
+
 
     reason = f'Token <{p.value}> inesperado'
     global_config.log_syntactic_error(reason, p.lineno, -1)

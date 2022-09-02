@@ -81,7 +81,7 @@ def match_deepness(supposed: int, arr: List[ValueTuple]):
 
 def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:
     if not isinstance(arr, list):  # Reached end of array
-        if len(supposed) is not 0:  # But chain is not completed
+        if len(supposed) != 0:  # But chain is not completed
             # print("False: end of array but not chain")
             return False
         # print("True: end of array and chain")
@@ -89,7 +89,7 @@ def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:
 
     else:  # Array is still nested
 
-        if len(supposed) is 0:  # But chain is empty
+        if len(supposed) == 0:  # But chain is empty
             # print("False:end of chain but not array")
             return False
         # dont you dare return true :P Keep checking more nested levels
