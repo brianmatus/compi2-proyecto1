@@ -4,6 +4,7 @@ from errors.semantic_error import SemanticError
 import global_config
 from elements.symbol import Symbol
 from elements.array_symbol import ArraySymbol
+from elements.vector_symbol import VectorSymbol
 from element_types.element_type import ElementType
 from elements.value_tuple import ValueTuple
 
@@ -38,7 +39,7 @@ class Environment:
 
         self.symbol_table[_id] = Symbol(_id, _type, value, is_init, is_mutable)
 
-    def save_variable_array(self, _id: str, _type: ElementType, dimensions: {}, value, is_mutable: bool, is_init: bool,
+    def save_variable_array(self, _id: str, _type: ElementType, dimensions: dict, value, is_mutable: bool, is_init: bool,
                             line: int, column: int):
 
         the_symbol: Union[ArraySymbol, None]
@@ -63,6 +64,34 @@ class Environment:
                 raise Exception(error_msg)
 
         self.symbol_table[_id] = ArraySymbol(_id, _type, dimensions, value, is_init, is_mutable)
+
+    def save_variable_vector(self, _id: str, _type: ElementType, content_type: ElementType, deepness: int, value,
+                             is_mutable: bool, capacity: int,
+                             line: int, column: int):
+
+        the_symbol: Union[VectorSymbol, None]
+
+        if global_config.ALLOW_NESTED_VARIABLE_OVERRIDE:
+            the_symbol = self.symbol_table.get(_id)
+            if the_symbol is not None:
+                error_msg = f'Variable <{_id}> ya esta definida en el ámbito actual. ALLOW_NESTED_VARIABLE_OVERRIDE =' \
+                            f'{global_config.ALLOW_NESTED_VARIABLE_OVERRIDE}>'
+
+                global_config.log_semantic_error(error_msg, line, column)
+                raise SemanticError(error_msg, line, column)
+        else:
+            the_symbol = self.recursive_get(_id)
+            if the_symbol is not None:
+                error_msg = "Variable <" + _id + "> ya definida en el ambito actual. ALLOW_NESTED_VARIABLE_OVERRIDE="\
+                            + global_config.ALLOW_NESTED_VARIABLE_OVERRIDE
+                global_config.log_semantic_error(error_msg, line, column)
+                raise Exception(error_msg)
+
+        the_capacity = capacity
+        if the_capacity == -1:
+            the_capacity = len(value)
+
+        self.symbol_table[_id] = VectorSymbol(_id, _type, content_type, deepness, value, is_mutable, the_capacity)
 
     def set_variable(self, _id: str, result: ValueTuple, line: int, column: int):
         the_symbol: Union[Symbol, ArraySymbol] = self.recursive_get(_id)

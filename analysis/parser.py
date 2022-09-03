@@ -13,6 +13,7 @@ from elements.env import Environment
 from element_types.func_call_arg import FuncCallArg
 from elements.id_tuple import IDTuple
 from instructions.for_in_i import ForInRanged
+from element_types.vector_def_type import VectorDefType
 
 # ################################INSTRUCTIONS#########################################
 from element_types.array_def_type import ArrayDefType
@@ -31,6 +32,7 @@ from instructions.return_i import ReturnI
 from instructions.continue_i import ContinueI
 from instructions.break_i import BreakI
 from instructions.for_in_i import ForInI
+from instructions.vector_declaration import VectorDeclaration
 # ################################EXPRESSIONS#########################################
 from element_types.arithmetic_type import ArithmeticType
 from element_types.logic_type import LogicType
@@ -46,6 +48,8 @@ from expressions.function_call_expression import FunctionCallE
 from expressions.type_casting import TypeCasting
 from expressions.parameter_function_call import ParameterFunctionCallE
 from expressions.loop_e import LoopE
+
+from expressions.vector import VectorExpression
 
 tokens = lexer.tokens
 
@@ -105,6 +109,7 @@ def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add a
     | while_i
     | loop_i
     | for_in_i
+    | vector_declaration SEMICOLON
     """
     p[0] = p[1]
 
@@ -126,8 +131,45 @@ def p_no_semicolon_instruction(p):  # TODO all added to p_instruction should be 
     | while_i
     | loop_i
     | for_in_i
+    | vector_declaration
     """
     p[0] = p[1]
+
+
+# ###########################################VECTOR VARIABLE DECLARATION ###############################################
+def p_vec_declaration_1(p):
+    """vector_declaration : LET MUTABLE ID COLON vector_type EQUAL expression"""
+    p[0] = VectorDeclaration(p[3], p[5], p[7], True, p.lineno(1), -1)
+
+
+def p_vec_declaration_2(p):
+    """vector_declaration : LET ID COLON vector_type EQUAL expression"""
+    p[0] = VectorDeclaration(p[2], p[4], p[6], False, p.lineno(1), -1)
+
+
+def p_vector_type_r(p):
+    """vector_type : TYPE_VEC OPE_LESS vector_type OPE_MORE"""
+    p[0] = VectorDefType(True, p[3])
+
+
+def p_vector_type(p):
+    """vector_type : TYPE_VEC OPE_LESS variable_type OPE_MORE"""
+    p[0] = VectorDefType(False, p[3])
+
+
+def p_vector_expr_1(p):
+    """expression : VEC LOGIC_NOT array_expression"""
+    p[0] = VectorExpression(p[3], None, p.lineno(1), -1)
+
+
+def p_vector_expr_2(p):
+    """expression : TYPE_VEC COLON COLON NEW PARENTH_O PARENTH_C"""
+    p[0] = VectorExpression(None, None, p.lineno(1), -1)
+
+
+def p_vector_expr_3(p):
+    """expression : TYPE_VEC COLON COLON WITH_CAPACITY PARENTH_O expression PARENTH_C"""
+    p[0] = VectorExpression(None, p[6], p.lineno(1), -1)
 
 
 # ###############################################LOOP STATEMENT#########################################################
@@ -140,10 +182,12 @@ def p_for_in_i_2(p):
     """for_in_i : FOR ID IN expression DOT DOT expression KEY_O instructions KEY_C"""
     p[0] = ForInI(p[2], ForInRanged(p[4], p[7]), p[9], p.lineno(1), -1)
 
+
 # ###############################################LOOP STATEMENT#########################################################
 def p_loop_i(p):
     """loop_i : LOOP KEY_O instructions KEY_C"""
     p[0] = LoopI(p[3], p.lineno(1), -1)
+
 
 # ##############################################WHILE STATEMENT#########################################################
 def p_while_i(p):
@@ -171,6 +215,7 @@ def p_continue_i_1(p):
 def p_continue_i_2(p):
     """continue_i : CONTINUE"""
     p[0] = ContinueI(None, p.lineno(1), -1)
+
 
 # #############################################RETURN STATEMENT#########################################################
 def p_return_i_1(p):
@@ -531,6 +576,7 @@ def p_variable_type_usize(p):
     """variable_type : TYPE_USIZE"""
     p[0] = ElementType.USIZE
 
+
 def p_variable_type_f64(p):
     """variable_type : TYPE_F64"""
     p[0] = ElementType.FLOAT
@@ -569,6 +615,7 @@ def p_loop_as_expression(p):
     """expression : LOOP KEY_O instructions KEY_C"""
     p[0] = LoopE(p[3], p.lineno(1), -1)
 
+
 def p_parameter_func_call(p):
     """expression : ID DOT ID PARENTH_O func_call_args PARENTH_C %prec PREC_METHOD_CALL"""
     p[0] = ParameterFunctionCallE(p[1], p[3], p[5], p.lineno(1), -1)
@@ -577,8 +624,6 @@ def p_parameter_func_call(p):
 def p_parameter_func_call_array_ref(p):
     """expression : expression DOT ID PARENTH_O func_call_args PARENTH_C %prec PREC_METHOD_CALL"""
     p[0] = ParameterFunctionCallE(p[1], p[3], p[5], p.lineno(2), -1)
-
-
 
 
 def p_casting(p):
@@ -650,6 +695,7 @@ def p_expression_div(p):
 def p_expression_pow_int(p):
     """expression : TYPE_I64 COLON COLON POW PARENTH_O expression COMMA expression PARENTH_C"""
     p[0] = Arithmetic(p[6], p[8], ArithmeticType.POW_INT, p.lineno(1), -1)
+
 
 def p_expression_pow_float(p):
     """expression : TYPE_F64 COLON COLON POWF PARENTH_O expression COMMA expression PARENTH_C"""
@@ -871,8 +917,6 @@ def p_epsilon(p):
 
 
 def p_error(p):
-
-
     reason = f'Token <{p.value}> inesperado'
     global_config.log_syntactic_error(reason, p.lineno, -1)
 

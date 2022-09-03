@@ -79,6 +79,31 @@ def match_deepness(supposed: int, arr: List[ValueTuple]):
         i += 1
 
 
+def match_vector_deepness(supposed: int, vec: List[ValueTuple]) -> bool:
+    if not isinstance(vec, list):  # Reached end of vec
+        if supposed != 0:  # But chain is not completed
+            # print("False: end of array but not chain")
+            return False
+        # print("True: end of array and chain")
+        return True
+
+    else:  # Array is still nested
+
+        if supposed == 0:  # But chain is empty
+            # print("False:end of chain but not array")
+            return False
+        # dont you dare return true :P Keep checking more nested levels
+
+    for i in range(len(vec)):
+        r: bool = match_vector_deepness(supposed-1, vec[i].value)
+        if not r:
+            # print(f'False:{i}th child returned False')
+            return False
+
+    # All children and self returned True
+    return True
+
+
 def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:
     if not isinstance(arr, list):  # Reached end of array
         if len(supposed) != 0:  # But chain is not completed
@@ -112,6 +137,9 @@ def match_dimensions(supposed: List, arr: List[ValueTuple]) -> bool:
 
 def match_array_type(supposed: ElementType, arr: List[ValueTuple]) -> bool:
 
+    if len(arr) == 0: #TODO this breaks array? idk
+        return True
+
     if not isinstance(arr[0].value, list):  # Reached last array
         for item in arr:
             if item._type is not supposed:
@@ -125,6 +153,19 @@ def match_array_type(supposed: ElementType, arr: List[ValueTuple]) -> bool:
 
     # All children and self returned True
     return True
+
+
+def get_vector_deepness(vec) -> int:
+    i = 0
+    tmp = vec
+
+    while isinstance(tmp, list):
+        i += 1
+        tmp = tmp[0].value
+
+    return i
+
+
 
 
 def extract_dimensions_to_dict(arr) -> dict:

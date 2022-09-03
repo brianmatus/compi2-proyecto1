@@ -1,4 +1,4 @@
-import errors.semantic_error
+from errors.semantic_error import SemanticError
 import global_config
 from instructions.instruction import Instruction
 from returns.ast_return import ASTReturn
@@ -47,14 +47,49 @@ class Declaration(Instruction):
 
         # We have an impostor?
         if isinstance(expr.value, list):
-            # This should be and inferred array, so no normal declaration
-            dimensions = global_config.extract_dimensions_to_dict(expr.value)
-            tmp = expr
-            while (tmp._type == ElementType.ARRAY_EXPRESSION):
-                tmp = tmp.value[0]
-            the_type = tmp._type
-            env.save_variable_array(self._id, the_type, dimensions, expr.value, False, True, self.line, self.column)
-            return ExecReturn(ElementType.BOOL, True, False, False, False)
+
+            if expr._type == ElementType.ARRAY_EXPRESSION:
+
+                # This should be and inferred array, so no normal declaration
+                dimensions = global_config.extract_dimensions_to_dict(expr.value)
+                tmp = expr
+                while (tmp._type == ElementType.ARRAY_EXPRESSION):
+                    tmp = tmp.value[0]
+                the_type = tmp._type
+                env.save_variable_array(self._id, the_type, dimensions, expr.value, False, True, self.line, self.column)
+                return ExecReturn(ElementType.BOOL, True, False, False, False)
+
+            if expr._type == ElementType.VECTOR:
+                tmp = expr
+                while (tmp._type == ElementType.VECTOR):
+                    tmp = tmp.value[0]
+
+                    if tmp._type == ElementType.ARRAY_EXPRESSION:
+                        error_msg = f"No pueden combinarse expressiones array con vectores. " \
+                                    f"No olvides vec! antes de [...]"
+                        global_config.log_semantic_error(error_msg, self.line, self.column)
+                        raise SemanticError(error_msg, self.line, self.column)
+
+
+
+                deepness = global_config.get_vector_deepness(expr.value)
+
+                match_deepness = global_config.match_vector_deepness(deepness, expr.value)
+                if not match_deepness:
+                    error_msg = f'La definición del vector no concuerda con la expresión dada (dimensiones)'
+                    global_config.log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
+
+                env.save_variable_vector(self._id, ElementType.VECTOR, tmp._type, deepness, expr.value, self.is_mutable,
+                                         self.expression.capacity, self.line, self.column)
+
+                return ExecReturn(ElementType.BOOL, True, False, False, False)
+
+            error_msg = f"UKNOWN TYPE: Expresion con valor tipo lista no reconocido (not array/vector)"
+            global_config.log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
 
         # Infer if not explicitly specified
         if self._type is None:
@@ -87,10 +122,10 @@ class Declaration(Instruction):
         if self._type == ElementType.USIZE and expr._type == ElementType.INT:
 
             if global_config.is_arithmetic_pure_literals(self.expression):
-                if expr.value < 0:
-                    error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
-                    global_config.log_semantic_error(error_msg, self.line, self.column)
-                    raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+                # if expr.value < 0:
+                #     error_msg = f"USIZE UNDERFLOW: Valores usize deben ser positivos."
+                #     global_config.log_semantic_error(error_msg, self.line, self.column)
+                #     raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
                 env.save_variable(self._id, self._type, expr.value,
                                   is_mutable=self.is_mutable, is_init=True, is_array=False,
                                   line=self.line, column=self.column)
@@ -104,7 +139,7 @@ class Declaration(Instruction):
         # Error:
         error_msg = f'Asignacion de tipo {expr._type.name} a variable <{self._id}> de tipo {self._type.name}'
         global_config.log_semantic_error(error_msg, self.line, self.column)
-        raise errors.semantic_error.SemanticError(error_msg, self.line, self.column)
+        raise SemanticError(error_msg, self.line, self.column)
 
     def ast(self) -> ASTReturn:
         father_ref = global_config.get_unique_number()

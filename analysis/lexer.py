@@ -28,6 +28,10 @@ reserved = {
     'in': 'IN',
     'pow': 'POW',
     'powf': 'POWF',
+    'vec': 'VEC',
+    'Vec': 'TYPE_VEC',
+    'new': 'NEW',
+    'with_capacity': 'WITH_CAPACITY',
 }
 
 tokens = [
