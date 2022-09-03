@@ -33,6 +33,7 @@ from instructions.continue_i import ContinueI
 from instructions.break_i import BreakI
 from instructions.for_in_i import ForInI
 from instructions.vector_declaration import VectorDeclaration
+from instructions.expression_as_instruction import ExpressionAsInstruction
 # ################################EXPRESSIONS#########################################
 from element_types.arithmetic_type import ArithmeticType
 from element_types.logic_type import LogicType
@@ -112,6 +113,20 @@ def p_instruction(p):  # since all here are p[0] = p[1] (except void_inst) add a
     | vector_declaration SEMICOLON
     """
     p[0] = p[1]
+
+
+def p_expr_as_inst(p):
+    """instruction : expression SEMICOLON"""
+    if isinstance(p[1], ParameterFunctionCallE):
+        p[0] = ExpressionAsInstruction(p[1], p.lineno(2), -1)
+        return
+    reason = f'Expression-as-instruction inesperada.'
+    global_config.log_syntactic_error(reason, p.lineno, -1)
+
+    print(f"next token is {parser.token()}")
+    print(f"2nd next token is {parser.token()}")
+    raise SyntacticError(reason, p.lineno, -1)
+
 
 
 def p_no_semicolon_instruction(p):  # TODO all added to p_instruction should be added here

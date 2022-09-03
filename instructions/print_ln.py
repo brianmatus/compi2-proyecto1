@@ -53,11 +53,16 @@ class PrintLN(Instruction):
 
             # Arrays
             if isinstance(the_arg.value, list):
+
                 # print("change for array")
                 if next_is_simple:
-                    error_msg = f'{{}} fue dado para una variable que es array'
+                    error_msg = f'{{}} fue dado para una variable que es array/vector'
                     global_config.log_semantic_error(error_msg, self.line, self.column)
                     raise SemanticError(error_msg, self.line, self.column)
+
+                if the_arg._type == ElementType.VECTOR:
+                    the_str = the_str.replace("{:?}", str(the_arg.value), 1)
+                    continue
 
                 the_str = the_str.replace("{:?}", str(global_config.value_tuple_array_to_array(the_arg.value)), 1)
                 continue

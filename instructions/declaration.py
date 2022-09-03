@@ -60,6 +60,12 @@ class Declaration(Instruction):
                 return ExecReturn(ElementType.BOOL, True, False, False, False)
 
             if expr._type == ElementType.VECTOR:
+
+                if len(expr.value) == 0:
+                    error_msg = f"No se puede inferir el tipo de un vector vacio, debe especificar un tipo."
+                    global_config.log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
                 tmp = expr
                 while (tmp._type == ElementType.VECTOR):
                     tmp = tmp.value[0]
@@ -79,6 +85,21 @@ class Declaration(Instruction):
                     error_msg = f'La definición del vector no concuerda con la expresión dada (dimensiones)'
                     global_config.log_semantic_error(error_msg, self.line, self.column)
                     raise SemanticError(error_msg, self.line, self.column)
+
+                from expressions.parameter_function_call import ParameterFunctionCallE
+                from expressions.array_reference import ArrayReference
+
+                if isinstance(self.expression, ParameterFunctionCallE):
+                    env.save_variable_vector(self._id, ElementType.VECTOR, tmp._type, deepness, expr.value,
+                                             self.is_mutable,
+                                             len(expr.value), self.line, self.column)
+                    return ExecReturn(ElementType.BOOL, True, False, False, False)
+
+                if isinstance(self.expression, ArrayReference):
+                    env.save_variable_vector(self._id, ElementType.VECTOR, tmp._type, deepness, expr.value,
+                                             self.is_mutable,
+                                             len(expr.value), self.line, self.column)
+                    return ExecReturn(ElementType.BOOL, True, False, False, False)
 
 
                 env.save_variable_vector(self._id, ElementType.VECTOR, tmp._type, deepness, expr.value, self.is_mutable,

@@ -84,7 +84,7 @@ class FunctionCallE(Expression):
                     log_semantic_error(error_msg, self.line, self.column)
                     raise SemanticError(error_msg, self.line, self.column)
 
-            # print(f'or forgiveness:{not param.is_mutable}')
+            # print(for forgiveness:{not param.is_mutable}')
 
 
             intermediate_env.save_variable_array(param._id, param._type,

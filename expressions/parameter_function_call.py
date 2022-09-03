@@ -10,6 +10,7 @@ from elements.value_tuple import ValueTuple
 from element_types.element_type import ElementType
 from elements.symbol import Symbol
 from elements.array_symbol import ArraySymbol
+from elements.vector_symbol import VectorSymbol
 from expressions.array_reference import ArrayReference
 from expressions.variable_ref import VariableReference
 from expressions.literal import Literal
@@ -105,8 +106,24 @@ class ParameterFunctionCallE(Expression):
             if self.function_id == "clone":
                 return self.native_array_clone(the_symbol)
 
+        if isinstance(the_symbol, VectorSymbol):
 
+            match self.function_id:
 
+                case "push":
+                    return self.native_vec_push(the_symbol, environment)
+                case "insert":
+                    return self.native_vec_insert(the_symbol, environment)
+                case "remove":
+                    return self.native_vec_remove(the_symbol, environment)
+                case "len":
+                    return self.native_vec_len(the_symbol)
+                case "capacity":
+                    return self.native_vec_capacity(the_symbol)
+                case _:
+                    error_msg = f"No existe el método <{self.function_id}> en tipo Vec"
+                    log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
 
 
         # TODO Check if is struct
@@ -179,3 +196,164 @@ class ParameterFunctionCallE(Expression):
             raise SemanticError(error_msg, self.line, self.column)
 
         return ValueTuple(len(the_symbol.value), ElementType.INT, False)
+
+    def native_vec_push(self, the_symbol, environment) -> ValueTuple:
+
+        if not the_symbol.is_mutable:
+            error_msg = f"Vec <{the_symbol._id}> no es mutable y no puede ser modificado"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if len(self.params) != 1:
+            error_msg = f"vec.push() solo toma un argumento de entrada. ({len(self.params)} fueron dados)"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        element = self.params[0].expr.execute(environment)
+
+        if not global_config.match_vector_deepness(the_symbol.deepness-1, element.value):
+            error_msg = f"se ha ingresado una cantidad erronea de vectores anidados,"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        tmp = element
+        while tmp._type == ElementType.VECTOR:
+            tmp = tmp.value[0]
+
+            if tmp._type == ElementType.ARRAY_EXPRESSION:
+                error_msg = f"No pueden combinarse expressiones array con vectores. " \
+                            f"No olvides vec! antes de [...]"
+                global_config.log_semantic_error(error_msg, self.line, self.column)
+                raise SemanticError(error_msg, self.line, self.column)
+
+        if the_symbol.content_type != tmp._type:
+            error_msg = f".push() fue dado un tipo de dato invalido."
+            global_config.log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if the_symbol.capacity <= len(the_symbol.value):   # Minor capacity should not happen, just in case
+            if the_symbol.capacity == 0:
+                the_symbol.capacity = 1
+            else:
+                the_symbol.capacity = the_symbol.capacity * 2
+
+        the_symbol.value.append(element.value)
+        return ValueTuple(None, ElementType.VOID, False)
+
+    def native_vec_insert(self, the_symbol: VectorSymbol, environment) -> ValueTuple:
+        if not the_symbol.is_mutable:
+            error_msg = f"Vec <{the_symbol._id}> no es mutable y no puede ser modificado"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if len(self.params) != 2:
+            error_msg = f"vec.insert() toma dos argumentos de entrada. ({len(self.params)} fueron dados)"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        element = self.params[0].expr.execute(environment)
+
+        if not global_config.match_vector_deepness(the_symbol.deepness - 1, element.value):
+            error_msg = f"se ha ingresado una cantidad erronea de vectores anidados,"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        the_index: ValueTuple = self.params[1].expr.execute(environment)
+        if the_index._type not in [ElementType.INT, ElementType.USIZE]:
+            error_msg = f"El indice de inserción debe ser de tipo int/usize"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if the_index.value < 0:
+            error_msg = f"El indice de inserción debe ser positivo"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if len(the_symbol.value) < the_index.value:
+            error_msg = f"El indice de inserción esta fuera de el tamaño actual {len(the_symbol.value)}"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        tmp = element
+        while tmp._type == ElementType.VECTOR:
+            tmp = tmp.value[0]
+
+            if tmp._type == ElementType.ARRAY_EXPRESSION:
+                error_msg = f"No pueden combinarse expressiones array con vectores. " \
+                            f"No olvides vec! antes de [...]"
+                global_config.log_semantic_error(error_msg, self.line, self.column)
+                raise SemanticError(error_msg, self.line, self.column)
+
+        if the_symbol.content_type != tmp._type:
+            error_msg = f".insert() fue dado un tipo de dato invalido."
+            global_config.log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if the_symbol.capacity <= len(the_symbol.value):  # Minor capacity should not happen, just in case
+            if the_symbol.capacity == 0:
+                the_symbol.capacity = 1
+            else:
+                the_symbol.capacity *= 2
+
+        the_symbol.value.insert(the_index.value, element.value)
+        return ValueTuple(None, ElementType.VOID, False)
+
+    def native_vec_remove(self, the_symbol: VectorSymbol, environment) -> ValueTuple:
+        if not the_symbol.is_mutable:
+            error_msg = f"Vec <{the_symbol._id}> no es mutable y no puede ser modificado"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if len(self.params) != 1:
+            error_msg = f"vec.remove() solo toma un argumento de entrada. ({len(self.params)} fueron dados)"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        the_index: ValueTuple = self.params[0].expr.execute(environment)
+        if the_index._type not in [ElementType.INT, ElementType.USIZE]:
+            error_msg = f"El indice de inserción debe ser de tipo int/usize"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if the_index.value < 0:
+            error_msg = f"El indice de inserción debe ser positivo"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if len(the_symbol.value) <= the_index.value:
+            error_msg = f"El indice de inserción esta fuera de el tamaño actual {len(the_symbol.value)}"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        r = the_symbol.value.pop(the_index.value)
+
+        if the_symbol.deepness != 1:
+            return ValueTuple(r, ElementType.VECTOR, the_symbol.is_mutable)
+        return ValueTuple(r, the_symbol.content_type, False)
+
+    def native_vec_len(self, the_symbol: VectorSymbol) -> ValueTuple:
+
+        if len(self.params) != 0:
+            error_msg = f"vec.len() no toma ningún argumento de entrada. ({len(self.params)} fueron dados)"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        return ValueTuple(len(the_symbol.value), ElementType.INT, False)
+
+    def native_vec_capacity(self, the_symbol: VectorSymbol) -> ValueTuple:
+
+        if len(self.params) != 0:
+            error_msg = f"vec.capacity() no toma ningún argumento de entrada. ({len(self.params)} fueron dados)"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        return ValueTuple(the_symbol.capacity, ElementType.INT, False)
+
+
+
+
+
+
+
+
+

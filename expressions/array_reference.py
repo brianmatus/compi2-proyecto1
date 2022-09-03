@@ -5,6 +5,7 @@ from element_types.element_type import ElementType
 from returns.ast_return import ASTReturn
 
 from elements.array_symbol import ArraySymbol
+from elements.vector_symbol import VectorSymbol
 
 from global_config import log_semantic_error
 from errors.semantic_error import SemanticError
@@ -42,6 +43,38 @@ class ArrayReference(Expression):
 
         # print(f'Evaluated indexes:{dimensions}')
         # print(f'Symbol indexes:{the_symbol.dimensions}')
+
+        if isinstance(the_symbol, VectorSymbol):
+            print("vect, not array lmao")
+            if the_symbol.deepness < len(dimensions):
+                error_msg = f'La profundidad del vector es menor a la ingresada'
+                log_semantic_error(error_msg, self.line, self.column)
+                raise SemanticError(error_msg, self.line, self.column)
+
+            returning = the_symbol.value
+            aux = the_symbol.deepness
+            for i in range(len(dimensions)):
+                # print(f"requested:{dimensions[i]} existing:{the_symbol.dimensions[i+1]}")
+                if dimensions[i] > len(returning):
+                    error_msg = f'Las dimensiones del vector son menores a las ingresadas'
+                    log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
+                returning = returning[dimensions[i]].value
+
+            if isinstance(returning, ValueTuple):
+                return ValueTuple(_type=returning._type, value=returning.value, is_mutable=the_symbol.is_mutable)
+
+            if isinstance(returning, list):
+                return ValueTuple(_type=the_symbol._type, value=returning, is_mutable=the_symbol.is_mutable)
+
+            return ValueTuple(_type=the_symbol.content_type, value=returning, is_mutable=the_symbol.is_mutable)
+
+
+
+
+
+
 
         if len(the_symbol.dimensions.keys()) < len(dimensions):
             error_msg = f'La profundidad del array es menor a la ingresada'
