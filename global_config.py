@@ -22,6 +22,80 @@ function_list: dict = {}  # func_name:str, func:func_decl
 
 main_environment = None  # Type Environment. Due to circular import this is set in main
 
+def generate_symbol_table(instruction_set, env_name: str) -> List[List[str]]:
+    table: List[List[str]] = []
+
+    for instruction in instruction_set:
+        match type(instruction).__name__:
+            case "Declaration":
+                table.append([instruction._id, "Variable", instruction._type.name, env_name,
+                              str(instruction.line), str(instruction.column)])
+
+            case "ArrayDeclaration":
+                if instruction.var_type is not None:
+
+                    table.append([instruction._id, "Variable[]", instruction.var_type.name, env_name,
+                                  str(instruction.line), str(instruction.column)])
+                else:
+                    table.append([instruction._id, "Variable[]", "-", env_name,
+                                  str(instruction.line), str(instruction.column)])
+
+            case "VectorDeclaration":
+                table.append([instruction._id, "Variable Vec<>", instruction.var_type, env_name,
+                              str(instruction.line), str(instruction.column)])
+
+            case "FunctionDeclaration":
+                table.append([instruction._id, "Function Declaration", instruction.return_type.name, env_name,
+                              str(instruction.line), str(instruction.column)])
+                function_table = generate_symbol_table(instruction.instructions, env_name + "->" + instruction._id)
+                table = table + function_table
+
+            case "Conditional":
+                conditional_id = random_hex_color_code()
+                for clause in instruction.clauses:
+                    random_id = random_hex_color_code()
+                    conditional_table = generate_symbol_table(clause.instructions,
+                                                              env_name+"Conditional"+conditional_id+":"+random_id)
+                    table = table + conditional_table
+
+            case "MatchI":
+                conditional_id = random_hex_color_code()
+                for clause in instruction.clauses:
+                    random_id = random_hex_color_code()
+                    conditional_table = generate_symbol_table(clause.instructions,
+                                                              env_name + "Match" + conditional_id + ":" + random_id)
+                    table = table + conditional_table
+
+            case "WhileI":
+                while_id = random_hex_color_code()
+                while_table = generate_symbol_table(instruction.instructions, env_name + "While"+while_id)
+                table = table + while_table
+
+            case "LoopI":
+                loop_id = random_hex_color_code()
+                loop_table = generate_symbol_table(instruction.instructions, env_name + "While" + loop_id)
+                table = table + loop_table
+
+            case "ForInI":
+                for_id = random_hex_color_code()
+                table.append([instruction.looper, "Variable", "-", env_name + "->For" + for_id,
+                              str(instruction.line), str(instruction.column)])
+                for_table = generate_symbol_table(instruction.instructions, env_name + "While" + for_id)
+                table = table + for_table
+
+
+    return table
+
+
+
+
+
+
+
+
+
+
+
 
 def is_arithmetic_pure_literals(expr) -> bool:
 

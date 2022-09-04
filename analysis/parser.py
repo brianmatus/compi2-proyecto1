@@ -915,6 +915,9 @@ def p_if_statement_expr_2(p):
     """if_s_expr : IF expression KEY_O instructions expression KEY_C"""
     p[0] = [ConditionExpressionClause(p[2], p[4], p[5], Environment(None))]
 
+    a = global_config.generate_symbol_table(p[4], "Expr:IF" + global_config.random_hex_color_code())
+    global_config.tmp_symbol_table = global_config.tmp_symbol_table + a
+
 
 def p_elseifs_r_expr(p):
     """else_ifs_expr : else_ifs_expr else_if_expr"""
@@ -934,6 +937,8 @@ def p_elseif_expr_1(p):
 def p_elseif_expr_2(p):
     """else_if_expr : ELSE IF expression KEY_O instructions expression KEY_C"""
     p[0] = [ConditionExpressionClause(p[3], p[5], p[6], Environment(None))]
+    a = global_config.generate_symbol_table(p[5], "Expr:ELSE-IF" + global_config.random_hex_color_code())
+    global_config.tmp_symbol_table = global_config.tmp_symbol_table + a
 
 
 def p_else_expr_1(p):
@@ -944,6 +949,10 @@ def p_else_expr_1(p):
 def p_else_expr_2(p):
     """else_s_expr : ELSE KEY_O instructions expression KEY_C"""
     p[0] = [ConditionExpressionClause(None, p[3], p[4], Environment(None))]
+
+    a = global_config.generate_symbol_table(p[3], "Expr:ELSE" + global_config.random_hex_color_code())
+    global_config.tmp_symbol_table = global_config.tmp_symbol_table + a
+
 
 
 def p_epsilon(p):

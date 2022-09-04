@@ -52,7 +52,7 @@ def parse_code(code_string: str) -> dict:  # -> ParseResult
     global_config.syntactic_error_list = []
     global_config.semantic_error_list = []
     global_config.tmp_symbol_table = []
-    global_config.function_list = {}
+    # global_config.function_list = {}
     # func list
     global_config.console_output = ""
     try:
@@ -173,7 +173,7 @@ def parse_code(code_string: str) -> dict:  # -> ParseResult
         print("Resulting function list:")
         # print(function_list)
         print("Resulting symbol table:")
-        print(generate_symbol_table(instruction_set, "Main"))
+        print(global_config.generate_symbol_table(instruction_set, "Main"))
         print("Resulting console output:")
         print("-------------------------------------------------------------------------------------------------------")
         print(global_config.console_output)
@@ -183,11 +183,11 @@ def parse_code(code_string: str) -> dict:  # -> ParseResult
             "lexic_errors": global_config.lexic_error_list,
             "syntactic_errors": global_config.syntactic_error_list,
             "semantic_errors": global_config.semantic_error_list,
-            "symbol_table": generate_symbol_table(instruction_set, "Main")
+            "symbol_table": global_config.tmp_symbol_table + global_config.generate_symbol_table(instruction_set, "Main")
         }
 
         # return [global_config.lexic_error_list, global_config.syntactic_error_list,
-        #                    global_config.semantic_error_list, generate_symbol_table(instruction_set, "Main"),
+        #                    global_config.semantic_error_list, global_config.generate_symbol_table(instruction_set, "Main"),
         #                    global_config.console_output, ""]
 
     except Exception as err:
@@ -197,17 +197,20 @@ def parse_code(code_string: str) -> dict:  # -> ParseResult
         print("#####################Errores Lexicos:###################")
         lexic: LexicError
         for lexic in global_config.lexic_error_list:
-            print("[row:%s,column:%s]Error Lexico: <%s> no reconocido", lexic.row, lexic.column, lexic.reason)
+            print(lexic)
+            # print("[row:%s,column:%s]Error Lexico: <%s> no reconocido", lexic.row, lexic.column, lexic.reason)
 
         print("#####################Errores Sintactico:###################")
         syntactic: SyntacticError
         for syntactic in global_config.syntactic_error_list:
-            print("[row:%s,column:%s]ERROR:%s", syntactic.row, syntactic.column, syntactic.reason)
+            print(syntactic)
+            # print("[row:%s,column:%s]ERROR:%s", syntactic.row, syntactic.column, syntactic.reason)
 
         print("#####################Errores Semantico:###################")
         semantic: SemanticError
         for semantic in global_config.semantic_error_list:
-            print("[row:%s,column:%s]ERROR:%s", semantic.row, semantic.column, semantic.reason)
+            print(semantic)
+            # print("[row:%s,column:%s]ERROR:%s", semantic.row, semantic.column, semantic.reason)
 
 
         print(global_config.console_output)
@@ -219,75 +222,15 @@ def parse_code(code_string: str) -> dict:  # -> ParseResult
             "lexic_errors": global_config.lexic_error_list,
             "syntactic_errors": global_config.syntactic_error_list,
             "semantic_errors": global_config.semantic_error_list,
-            "symbol_table": generate_symbol_table(instruction_set, "Main")
+            "symbol_table": global_config.tmp_symbol_table + global_config.generate_symbol_table(instruction_set, "Main")
         }
 
         # return [global_config.lexic_error_list,
         #                    global_config.syntactic_error_list, global_config.semantic_error_list,
         #                    generate_ast_tree(instruction_set),
         #                    global_config.console_output,
-        #                    generate_symbol_table(instruction_set, "Main")]
+        #                    global_config.generate_symbol_table(instruction_set, "Main")]
 
-
-def generate_symbol_table(instruction_set: List[Instruction], env_name: str) -> List[List[str]]:
-    table: List[List[str]] = []
-
-    instruction: Instruction
-    for instruction in instruction_set:
-        match type(instruction).__name__:
-            case "Declaration":
-                table.append([instruction._id, "Variable", instruction._type.name, env_name,
-                              str(instruction.line), str(instruction.column)])
-
-            case "ArrayDeclaration":
-                table.append([instruction._id, "Variable[]", instruction._type.name, env_name,
-                              str(instruction.line), str(instruction.column)])
-
-            case "VectorDeclaration":
-                table.append([instruction._id, "Variable Vec<>", instruction.var_type, env_name,
-                              str(instruction.line), str(instruction.column)])
-
-            case "FunctionDeclaration":
-                table.append([instruction._id, "Function Declaration", instruction.return_type.name, env_name,
-                              str(instruction.line), str(instruction.column)])
-                function_table = generate_symbol_table(instruction.instructions, env_name + "->" + instruction._id)
-                table = table + function_table
-
-            case "Conditional":
-                conditional_id = global_config.random_hex_color_code()
-                for clause in instruction.clauses:
-                    random_id = global_config.random_hex_color_code()
-                    conditional_table = generate_symbol_table(clause.instructions,
-                                                              env_name+"Conditional"+conditional_id+":"+random_id)
-                    table = table + conditional_table
-
-            case "MatchI":
-                conditional_id = global_config.random_hex_color_code()
-                for clause in instruction.clauses:
-                    random_id = global_config.random_hex_color_code()
-                    conditional_table = generate_symbol_table(clause.instructions,
-                                                              env_name + "Match" + conditional_id + ":" + random_id)
-                    table = table + conditional_table
-
-            case "WhileI":
-                while_id = global_config.random_hex_color_code()
-                while_table = generate_symbol_table(instruction.instructions, env_name + "While"+while_id)
-                table = table + while_table
-
-            case "LoopI":
-                loop_id = global_config.random_hex_color_code()
-                loop_table = generate_symbol_table(instruction.instructions, env_name + "While" + loop_id)
-                table = table + loop_table
-
-            case "ForInI":
-                for_id = global_config.random_hex_color_code()
-                table.append([instruction.looper, "Variable", "-", env_name + "->For" + for_id,
-                              str(instruction.line), str(instruction.column)])
-                for_table = generate_symbol_table(instruction.instructions, env_name + "While" + for_id)
-                table = table + for_table
-
-
-    return table
 
 
 
