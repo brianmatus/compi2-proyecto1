@@ -49,7 +49,8 @@ class ParameterFunctionCallE(Expression):
             result = self.variable_id.execute(environment)
 
             if isinstance(result.value, list):
-                the_symbol = ArraySymbol(self.variable_id._id, result._type, self.variable_id.indexes, result.value, True, False)
+                the_symbol = ArraySymbol(self.variable_id._id, result._type, self.variable_id.indexes, result.value,
+                                         True, False)
 
             else:
                 the_symbol = Symbol(self.variable_id._id, result._type, result.value, True, False)
@@ -60,7 +61,7 @@ class ParameterFunctionCallE(Expression):
         elif isinstance(self.variable_id, Literal):
             if self.function_id == "to_string":
                 r = self.variable_id.execute(environment)
-                return ValueTuple(str(r.value), ElementType.STRING_CLASS, False)
+                return ValueTuple(str(r.value), ElementType.STRING_CLASS, False, None, None)
 
         elif isinstance(self.variable_id, TypeCasting):
             r = self.variable_id.execute(environment)
@@ -70,7 +71,7 @@ class ParameterFunctionCallE(Expression):
             # FIXME check resulting function type
             if self.function_id == "to_string":
                 r = self.variable_id.execute(environment)
-                return ValueTuple(str(r.value), ElementType.STRING_CLASS, False)
+                return ValueTuple(str(r.value), ElementType.STRING_CLASS, False, None, None)
 
 
         else:
@@ -120,6 +121,8 @@ class ParameterFunctionCallE(Expression):
                     return self.native_vec_len(the_symbol)
                 case "capacity":
                     return self.native_vec_capacity(the_symbol)
+                case "contains":
+                    return self.native_vec_contains(the_symbol, environment)
                 case _:
                     error_msg = f"No existe el método <{self.function_id}> en tipo Vec"
                     log_semantic_error(error_msg, self.line, self.column)
@@ -153,7 +156,7 @@ class ParameterFunctionCallE(Expression):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        return ValueTuple(abs(the_symbol.value), the_symbol._type, False)
+        return ValueTuple(abs(the_symbol.value), the_symbol._type, False, None, None)
 
     def native_sqrt(self, the_symbol) -> ValueTuple:
         allowed_types = [ElementType.INT, ElementType.FLOAT]
@@ -162,7 +165,7 @@ class ParameterFunctionCallE(Expression):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        return ValueTuple(math.sqrt(the_symbol.value), ElementType.FLOAT, False)
+        return ValueTuple(math.sqrt(the_symbol.value), ElementType.FLOAT, False, None, None)
 
     def native_clone(self, the_symbol) -> ValueTuple:
         allowed_types = [ElementType.INT, ElementType.USIZE, ElementType.FLOAT,
@@ -173,7 +176,7 @@ class ParameterFunctionCallE(Expression):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        return ValueTuple(the_symbol.value, the_symbol._type, False)
+        return ValueTuple(the_symbol.value, the_symbol._type, False, None, None)
 
     def native_array_clone(self, the_symbol) -> ValueTuple:
         allowed_types = [ElementType.INT, ElementType.USIZE, ElementType.FLOAT,
@@ -184,18 +187,22 @@ class ParameterFunctionCallE(Expression):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        return ValueTuple(copy.deepcopy(the_symbol.value), the_symbol._type, False)
+        return ValueTuple(copy.deepcopy(the_symbol.value), the_symbol._type, False, None, None)
 
     def native_len(self, the_symbol) -> ValueTuple:
         allowed_types = [ElementType.INT, ElementType.USIZE, ElementType.FLOAT,
                          ElementType.BOOL, ElementType.CHAR,
-                         ElementType.STRING_PRIMITIVE, ElementType.STRING_CLASS]
+                         ElementType.STRING_PRIMITIVE, ElementType.STRING_CLASS, ElementType.VECTOR]
         if not the_symbol._type in allowed_types:
-            error_msg = f".to_string() solo puede ser usado con i64, usize, f64, bool, char, String, &str."
+            error_msg = f".len() solo puede ser usado con i64, usize, f64, bool, char, String, &str."
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        return ValueTuple(len(the_symbol.value), ElementType.INT, False)
+        if isinstance(the_symbol, VectorSymbol):
+            return ValueTuple(len(the_symbol.value), ElementType.INT, False, the_symbol.content_type,
+                              the_symbol.capacity)
+
+        return ValueTuple(len(the_symbol.value), ElementType.INT, False, None, None)
 
     def native_vec_push(self, the_symbol, environment) -> ValueTuple:
 
@@ -231,14 +238,15 @@ class ParameterFunctionCallE(Expression):
             global_config.log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        if the_symbol.capacity <= len(the_symbol.value):   # Minor capacity should not happen, just in case
-            if the_symbol.capacity == 0:
-                the_symbol.capacity = 1
+        if the_symbol.capacity[0] <= len(the_symbol.value):   # Minor capacity should not happen, just in case
+            if the_symbol.capacity[0] == 0:
+                the_symbol.capacity[0] = 1
             else:
-                the_symbol.capacity = the_symbol.capacity * 2
+                the_symbol.capacity[0] = the_symbol.capacity[0] * 2
 
-        the_symbol.value.append(element.value)
-        return ValueTuple(None, ElementType.VOID, False)
+        the_symbol.value.append(ValueTuple(element.value, element._type, element.is_mutable, the_symbol.content_type,
+                                           the_symbol.capacity))
+        return ValueTuple(None, ElementType.VOID, False, the_symbol.content_type, the_symbol.capacity)
 
     def native_vec_insert(self, the_symbol: VectorSymbol, environment) -> ValueTuple:
         if not the_symbol.is_mutable:
@@ -251,14 +259,14 @@ class ParameterFunctionCallE(Expression):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        element = self.params[0].expr.execute(environment)
+        element = self.params[1].expr.execute(environment)
 
         if not global_config.match_vector_deepness(the_symbol.deepness - 1, element.value):
             error_msg = f"se ha ingresado una cantidad erronea de vectores anidados,"
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        the_index: ValueTuple = self.params[1].expr.execute(environment)
+        the_index: ValueTuple = self.params[0].expr.execute(environment)
         if the_index._type not in [ElementType.INT, ElementType.USIZE]:
             error_msg = f"El indice de inserción debe ser de tipo int/usize"
             log_semantic_error(error_msg, self.line, self.column)
@@ -270,7 +278,8 @@ class ParameterFunctionCallE(Expression):
             raise SemanticError(error_msg, self.line, self.column)
 
         if len(the_symbol.value) < the_index.value:
-            error_msg = f"El indice de inserción esta fuera de el tamaño actual {len(the_symbol.value)}"
+            error_msg = f"El indice de inserción esta fuera de el tamaño actual." \
+                        f"({len(the_symbol.value)}, {the_index.value})"
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
@@ -289,14 +298,16 @@ class ParameterFunctionCallE(Expression):
             global_config.log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        if the_symbol.capacity <= len(the_symbol.value):  # Minor capacity should not happen, just in case
-            if the_symbol.capacity == 0:
-                the_symbol.capacity = 1
+        if the_symbol.capacity[0] <= len(the_symbol.value):  # Minor capacity should not happen, just in case
+            if the_symbol.capacity[0] == 0:
+                the_symbol.capacity[0] = 1
             else:
-                the_symbol.capacity *= 2
+                the_symbol.capacity[0] *= 2
 
-        the_symbol.value.insert(the_index.value, element.value)
-        return ValueTuple(None, ElementType.VOID, False)
+        the_symbol.value.insert(the_index.value, ValueTuple(element.value, element._type, element.is_mutable,
+                                                            the_symbol.content_type, the_symbol.capacity))
+        return ValueTuple(None, ElementType.VOID, False, content_type=the_symbol.content_type,
+                          capacity=the_symbol.capacity)
 
     def native_vec_remove(self, the_symbol: VectorSymbol, environment) -> ValueTuple:
         if not the_symbol.is_mutable:
@@ -328,8 +339,11 @@ class ParameterFunctionCallE(Expression):
         r = the_symbol.value.pop(the_index.value)
 
         if the_symbol.deepness != 1:
-            return ValueTuple(r, ElementType.VECTOR, the_symbol.is_mutable)
-        return ValueTuple(r, the_symbol.content_type, False)
+            return ValueTuple(r, ElementType.VECTOR, the_symbol.is_mutable, the_symbol.content_type,
+                              the_symbol.capacity)
+
+        return ValueTuple(r.value, r._type, the_symbol.is_mutable, the_symbol.content_type, the_symbol.capacity)
+        # return ValueTuple(r, the_symbol.content_type, False, None, None)
 
     def native_vec_len(self, the_symbol: VectorSymbol) -> ValueTuple:
 
@@ -338,7 +352,8 @@ class ParameterFunctionCallE(Expression):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        return ValueTuple(len(the_symbol.value), ElementType.INT, False)
+        return ValueTuple(len(the_symbol.value), ElementType.INT, False, content_type=the_symbol.content_type,
+                          capacity=the_symbol.capacity)
 
     def native_vec_capacity(self, the_symbol: VectorSymbol) -> ValueTuple:
 
@@ -347,7 +362,39 @@ class ParameterFunctionCallE(Expression):
             log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        return ValueTuple(the_symbol.capacity, ElementType.INT, False)
+        return ValueTuple(the_symbol.capacity[0], ElementType.INT, False, the_symbol.content_type, the_symbol.capacity)
+
+    def native_vec_contains(self, the_symbol: VectorSymbol, environment) -> ValueTuple:
+
+        if not self.params[0].as_reference:
+            error_msg = f"El valor a buscar debe ser pasado por referencia ->" \
+                        f"{self.params[0].expr.execute(environment).value}"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+
+        if the_symbol.deepness != 1:
+            error_msg = f"vec.contains() solo funciona para vectores de 1 dimension (o solo eso implemente yo xD)"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        if len(self.params) != 1:
+            error_msg = f"vec.contains() solo toma un argumento de entrada. ({len(self.params)} fueron dados)"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        the_element: ValueTuple = self.params[0].expr.execute(environment)
+
+        if the_element._type != the_symbol.content_type:
+            error_msg = f"El tipo de elemento de búsqueda debe ser igual al contenido en el vector"
+            log_semantic_error(error_msg, self.line, self.column)
+            raise SemanticError(error_msg, self.line, self.column)
+
+        m = global_config.value_tuple_array_to_array(the_symbol.value)
+        r = the_element.value in m
+
+        return ValueTuple(r, ElementType.BOOL, the_symbol.is_mutable, None, None)
+        # return ValueTuple(r, the_symbol.content_type, False, None, None)
 
 
 

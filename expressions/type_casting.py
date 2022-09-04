@@ -26,32 +26,32 @@ class TypeCasting(Expression):
         ##################################################
         # INT TO USIZE
         if res._type == ElementType.INT and self.cast_to == ElementType.USIZE:
-            return ValueTuple(res.value, ElementType.USIZE, res.is_mutable)
+            return ValueTuple(res.value, ElementType.USIZE, res.is_mutable, None, None)
 
         # USIZE TO INT
         if res._type == ElementType.USIZE and self.cast_to == ElementType.INT:
-            return ValueTuple(res.value, ElementType.INT, res.is_mutable)
+            return ValueTuple(res.value, ElementType.INT, res.is_mutable, None, None)
 
         # INT TO FLOAT
         if res._type == ElementType.INT and self.cast_to == ElementType.FLOAT:
-            return ValueTuple(res.value, ElementType.FLOAT, res.is_mutable)
+            return ValueTuple(res.value, ElementType.FLOAT, res.is_mutable, None, None)
         # FLOAT TO INT
         if res._type == ElementType.FLOAT and self.cast_to == ElementType.INT:
-            return ValueTuple(int(res.value), ElementType.INT, res.is_mutable)
+            return ValueTuple(int(res.value), ElementType.INT, res.is_mutable, None, None)
 
 
         # INT TO BOOL, INVALID, use != 0
         # BOOL TO INT
         if res._type == ElementType.BOOL and self.cast_to == ElementType.INT:
-            return ValueTuple(res.value, ElementType.INT, res.is_mutable)
+            return ValueTuple(res.value, ElementType.INT, res.is_mutable, None, None)
 
 
         # INT TO CHAR
         if res._type == ElementType.INT and self.cast_to == ElementType.CHAR:
-            return ValueTuple(res.value, ElementType.CHAR, res.is_mutable)
+            return ValueTuple(res.value, ElementType.CHAR, res.is_mutable, None, None)
         # CHAR TO INT
         if res._type == ElementType.CHAR and self.cast_to == ElementType.INT:
-            return ValueTuple(res.value, ElementType.INT, res.is_mutable)
+            return ValueTuple(res.value, ElementType.INT, res.is_mutable, None, None)
 
         # INT TO STRING INVALID, should be done with .to_string()
         # STRING TO INT  INVALID, always invalid? idk
@@ -59,18 +59,18 @@ class TypeCasting(Expression):
         ##################################################
         #USIZE TO FLOAT
         if res._type == ElementType.USIZE and self.cast_to == ElementType.FLOAT:
-            return ValueTuple(res.value, ElementType.FLOAT, res.is_mutable)
+            return ValueTuple(res.value, ElementType.FLOAT, res.is_mutable, None, None)
         #FLOAT TO USIZE INVALID, cast to i64 before
 
         # USIZE TO BOOL INVALID, use != 0
         # BOOL TO USIZE
         if res._type == ElementType.BOOL and self.cast_to == ElementType.USIZE:
-            return ValueTuple(res.value, ElementType.USIZE, res.is_mutable)
+            return ValueTuple(res.value, ElementType.USIZE, res.is_mutable, None, None)
 
         # USIZE TO CHAR INVALID
         # CHAR TO USIZE
         if res._type == ElementType.CHAR and self.cast_to == ElementType.USIZE:
-            return ValueTuple(res.value, ElementType.USIZE, res.is_mutable)
+            return ValueTuple(res.value, ElementType.USIZE, res.is_mutable, None, None)
 
 
 

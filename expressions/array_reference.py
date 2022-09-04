@@ -63,18 +63,17 @@ class ArrayReference(Expression):
                 returning = returning[dimensions[i]].value
 
             if isinstance(returning, ValueTuple):
-                return ValueTuple(_type=returning._type, value=returning.value, is_mutable=the_symbol.is_mutable)
+                return ValueTuple(_type=returning._type, value=returning.value, is_mutable=the_symbol.is_mutable,
+                                  content_type=the_symbol.content_type, capacity=the_symbol.capacity)
 
             if isinstance(returning, list):
-                return ValueTuple(_type=the_symbol._type, value=returning, is_mutable=the_symbol.is_mutable)
+                return ValueTuple(_type=the_symbol._type, value=returning, is_mutable=the_symbol.is_mutable,
+                                  content_type=the_symbol.content_type, capacity=the_symbol.capacity)
 
-            return ValueTuple(_type=the_symbol.content_type, value=returning, is_mutable=the_symbol.is_mutable)
+            return ValueTuple(_type=the_symbol.content_type, value=returning, is_mutable=the_symbol.is_mutable,
+                              content_type=the_symbol.content_type, capacity=the_symbol.capacity)
 
-
-
-
-
-
+        # ARRAY:
 
         if len(the_symbol.dimensions.keys()) < len(dimensions):
             error_msg = f'La profundidad del array es menor a la ingresada'
@@ -92,8 +91,10 @@ class ArrayReference(Expression):
             returning = returning[dimensions[i]].value
 
         if isinstance(returning, ValueTuple):
-            return ValueTuple(_type=returning._type, value=returning.value, is_mutable=the_symbol.is_mutable)
-        return ValueTuple(_type=the_symbol._type, value=returning, is_mutable=the_symbol.is_mutable)
+            return ValueTuple(_type=returning._type, value=returning.value, is_mutable=the_symbol.is_mutable,
+                              content_type=None, capacity=None)
+        return ValueTuple(_type=the_symbol._type, value=returning, is_mutable=the_symbol.is_mutable,
+                          content_type=None, capacity=None)
 
 
 

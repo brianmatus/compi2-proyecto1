@@ -79,6 +79,31 @@ def match_deepness(supposed: int, arr: List[ValueTuple]):
         i += 1
 
 
+def match_pure_vector_deepness(supposed: int, vec) -> bool:
+    if not isinstance(vec, list):  # Reached end of vec
+        if supposed != 0:  # But chain is not completed
+            # print("False: end of array but not chain")
+            return False
+        # print("True: end of array and chain")
+        return True
+
+    else:  # Array is still nested
+
+        if supposed == 0:  # But chain is empty
+            # print("False:end of chain but not array")
+            return False
+        # dont you dare return true :P Keep checking more nested levels
+
+    for i in range(len(vec)):
+        r: bool = match_vector_deepness(supposed-1, vec[i])
+        if not r:
+            # print(f'False:{i}th child returned False')
+            return False
+
+    # All children and self returned True
+    return True
+
+
 def match_vector_deepness(supposed: int, vec: List[ValueTuple]) -> bool:
     if not isinstance(vec, list):  # Reached end of vec
         if supposed != 0:  # But chain is not completed
@@ -166,10 +191,7 @@ def get_vector_deepness(vec) -> int:
     return i
 
 
-
-
 def extract_dimensions_to_dict(arr) -> dict:
-
     if not isinstance(arr, list):  # Same deepness, so no array
         return {}
 
@@ -187,6 +209,20 @@ def extract_dimensions_to_dict(arr) -> dict:
 
         r[i] = len(layer)
         break
+
+    return r
+
+
+
+def value_tuple_vector_to_array(arr) -> list:
+
+    r = []
+    element: ValueTuple
+    for element in arr:
+        if isinstance(element.value, list):
+            r.append(value_tuple_array_to_array(element.value))
+            continue
+        r.append(element.value)
 
     return r
 

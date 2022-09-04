@@ -54,9 +54,14 @@ class VectorExpression(Expression):
                 global_config.log_semantic_error(error_msg, self.line, self.column)
                 raise SemanticError(error_msg, self.line, self.column)
 
-            return ValueTuple(value=[expr]*int(repetitions.value), _type=ElementType.VECTOR, is_mutable=False)
+            # FIX ME, should check if last 2 Nones are correct
+            return ValueTuple(value=[expr]*int(repetitions.value), _type=ElementType.VECTOR, is_mutable=False,
+                              content_type=None, capacity=None)
+
 
         # Definition by list (or by new() which is handled in this constructor)
+        content_type = None
+        expr_result = None
         result: List[ValueTuple] = []
         for value in self.values:
 
@@ -71,5 +76,15 @@ class VectorExpression(Expression):
             expr_result = value.execute(environment)
             result.append(expr_result)
 
-        return ValueTuple(value=result, _type=ElementType.VECTOR, is_mutable=False)
+        cont_t = None
+        if expr_result is None:
+            cont_t = None
+        else:
+            if expr_result._type is not ElementType.VECTOR:
+                cont_t = expr_result._type
+            else:
+                cont_t = expr_result.content_type
+
+        return ValueTuple(value=result, _type=ElementType.VECTOR, is_mutable=False, content_type=cont_t,
+                          capacity=[self.capacity])  # TODO fixme
 

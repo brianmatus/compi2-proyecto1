@@ -14,7 +14,7 @@ class Literal(Expression):
         self._type = _type
 
     def execute(self, environment: Environment) -> ValueTuple:
-        return ValueTuple(self.value, self._type, is_mutable=False)
+        return ValueTuple(self.value, self._type, is_mutable=False, content_type=None, capacity=None)
 
     def ast(self) -> ASTReturn:
         father_ref = global_config.get_unique_number()

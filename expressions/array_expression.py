@@ -50,5 +50,6 @@ class ArrayExpression(Expression):
             expr_result = value.execute(environment)
             result.append(expr_result)
 
-        return ValueTuple(value=result, _type=ElementType.ARRAY_EXPRESSION, is_mutable=False)
+        return ValueTuple(value=result, _type=ElementType.ARRAY_EXPRESSION, is_mutable=False,
+                          content_type=None, capacity=None)
 

@@ -39,6 +39,9 @@ class PrintLN(Instruction):
 
         the_str: str = _str.value
 
+        # r = the_str.find("\\n")
+        # the_str.replace("\\n", "\n")
+
         for arg in self.expr_list[1:]:
             # print("titan")
             # print(arg)
@@ -61,7 +64,7 @@ class PrintLN(Instruction):
                     raise SemanticError(error_msg, self.line, self.column)
 
                 if the_arg._type == ElementType.VECTOR:
-                    the_str = the_str.replace("{:?}", str(the_arg.value), 1)
+                    the_str = the_str.replace("{:?}", str(global_config.value_tuple_vector_to_array(the_arg.value)), 1)
                     continue
 
                 the_str = the_str.replace("{:?}", str(global_config.value_tuple_array_to_array(the_arg.value)), 1)

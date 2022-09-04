@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, List
 
 from errors.semantic_error import SemanticError
 import global_config
@@ -66,7 +66,7 @@ class Environment:
         self.symbol_table[_id] = ArraySymbol(_id, _type, dimensions, value, is_init, is_mutable)
 
     def save_variable_vector(self, _id: str, _type: ElementType, content_type: ElementType, deepness: int, value,
-                             is_mutable: bool, capacity: int,
+                             is_mutable: bool, capacity: List[int],
                              line: int, column: int):
 
         the_symbol: Union[VectorSymbol, None]
@@ -88,10 +88,11 @@ class Environment:
                 raise Exception(error_msg)
 
         the_capacity = capacity
-        if the_capacity == -1:
-            the_capacity = len(value)
+        if the_capacity[0] == -1:
+            the_capacity[0] = len(value)
 
         self.symbol_table[_id] = VectorSymbol(_id, _type, content_type, deepness, value, is_mutable, the_capacity)
+
 
     def set_variable(self, _id: str, result: ValueTuple, line: int, column: int):
         the_symbol: Union[Symbol, ArraySymbol] = self.recursive_get(_id)

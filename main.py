@@ -25,7 +25,7 @@ import global_config
 
 
 def start():  # FIXME this should be replaced with frontend sending the code
-    f = open("code.exp", "r")
+    f = open("code.rs", "r")
     input_code: str = f.read()
     f.close()
 
@@ -91,13 +91,13 @@ def parse_code(code_string: str) -> ParseResult:
                            ast_tree='digraph G {\na[label="PARSE ERROR :( (syntactic)"]\n}',
                            console_output=global_config.console_output, symbol_table=[])
 
-    print("#############################################################################")
-    print("#############################################################################")
-    print("#############################################################################")
-    print("#############################################################################")
+    # print("#############################################################################")
+    # print("#############################################################################")
+    # print("#############################################################################")
+    # print("#############################################################################")
 
 
-    print(instruction_set)
+    # print(instruction_set)
 
     # Register all functions and modules
     try:
@@ -109,7 +109,7 @@ def parse_code(code_string: str) -> ParseResult:
                 global_config.log_semantic_error(error_msg, instruction.line, instruction.column)
                 raise SemanticError(error_msg, instruction.line, instruction.column)
 
-            print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+            # print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
             instruction.execute(global_config.main_environment)
 
         main_func: FunctionDeclaration = global_config.function_list.get("main")
@@ -128,8 +128,10 @@ def parse_code(code_string: str) -> ParseResult:
         # "Abandonen la esperanza todos los que entren aquí"
         for instruction in main_func.instructions:
             instruction.execute(main_func.environment)
+            _symbol_table = main_func.environment.symbol_table
 
         print("-------------------------------------------------------------------------------------------------------")
+
         # print("Resulting AST:")
         # print(generate_ast_tree(instruction_set))
         print("Resulting environment:")
@@ -141,6 +143,7 @@ def parse_code(code_string: str) -> ParseResult:
         print("Resulting symbol table:")
         print(generate_symbol_table(instruction_set, "Main"))
         print("Resulting console output:")
+        print("-------------------------------------------------------------------------------------------------------")
         print(global_config.console_output)
 
     except Exception as err:

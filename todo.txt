@@ -1,3 +1,6 @@
 Implement Column tracking in synt
 
 Check is variable is initialized in variable_property_ref, array_ref both elements of property access (i.e: a.b both need init)
+
+
+On parsing time, log symbol table for if/match as expressions, since this would have a pseudo-random name

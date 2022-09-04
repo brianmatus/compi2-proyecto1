@@ -18,10 +18,10 @@ class Declaration(Instruction):
         self.expression: Expression = expression
         self.is_mutable = is_mutable
 
-        if self._type is None:
-            print(f'Instance of declaration with id:{self._id} type:inferred')
-        else:
-            print(f'Instance of declaration with id:{self._id} type:{self._type.name}')
+        # if self._type is None:
+        #     print(f'Instance of declaration with id:{self._id} type:inferred')
+        # else:
+        #     print(f'Instance of declaration with id:{self._id} type:{self._type.name}')
 
     def execute(self, env: Environment) -> ExecReturn:
         # Declaration without assignment, using default values  (not possible? idk
@@ -98,12 +98,16 @@ class Declaration(Instruction):
                 if isinstance(self.expression, ArrayReference):
                     env.save_variable_vector(self._id, ElementType.VECTOR, tmp._type, deepness, expr.value,
                                              self.is_mutable,
-                                             len(expr.value), self.line, self.column)
+                                             [len(expr.value)], self.line, self.column)
                     return ExecReturn(ElementType.BOOL, True, False, False, False)
 
 
                 env.save_variable_vector(self._id, ElementType.VECTOR, tmp._type, deepness, expr.value, self.is_mutable,
-                                         self.expression.capacity, self.line, self.column)
+                                         [self.expression.capacity.execute(env)], self.line, self.column)
+
+                # FIXME This is "more correct"???
+                # env.save_variable_vector(self._id, ElementType.VECTOR, tmp._type, deepness, expr.value, self.is_mutable,
+                #                          self.expression.capacity, self.line, self.column)
 
                 return ExecReturn(ElementType.BOOL, True, False, False, False)
 

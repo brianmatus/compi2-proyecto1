@@ -307,37 +307,57 @@ def p_func_decl_args_epsilon(p):
 
 def p_func_var_1(p):
     """func_var : ID COLON variable_type"""
-    p[0] = IDTuple(p[1], p[3], False, False, {})
+    p[0] = IDTuple(p[1], p[3], False, False, {}, None)
 
 
 def p_func_var_2(p):
     """func_var : ID COLON MUTABLE variable_type"""
-    p[0] = IDTuple(p[1], p[4], True, False, {})
+    p[0] = IDTuple(p[1], p[4], True, False, {}, None)
 
 
 def p_func_var_3(p):  # Should only be used in arrays (and vectors??)
     """func_var : ID COLON AMPERSAND func_decl_array_var_type"""
-    p[0] = IDTuple(p[1], p[4][0], False, True, p[4][1])
+    p[0] = IDTuple(p[1], p[4][0], False, True, p[4][1], None)
 
 
-def p_func_var_4(p):  # Should only be used in arrays (and vectors??)
+def p_func_var_4(p):
+    """func_var : ID COLON AMPERSAND vector_type"""
+    tmp = p[4]
+    i = 1
+    while (tmp.is_nested_vector):
+        i += 1
+        tmp = tmp.content_type
+    p[0] = IDTuple(p[1], ElementType.VECTOR, False, True, i, tmp.content_type)
+
+
+def p_func_var_5(p):
+    """func_var : ID COLON AMPERSAND MUTABLE vector_type"""
+    tmp = p[5]
+    i = 1
+    while (tmp.is_nested_vector):
+        i += 1
+        tmp = tmp.content_type
+    p[0] = IDTuple(p[1], ElementType.VECTOR, True, True, i, tmp.content_type)
+
+
+def p_func_var_6(p):  # Should only be used in arrays (and vectors??)
     """func_var : ID COLON AMPERSAND MUTABLE func_decl_array_var_type"""
 
-    p[0] = IDTuple(p[1], p[5]["embedded_type"], True, True, p[5])
+    p[0] = IDTuple(p[1], p[5]["embedded_type"], True, True, p[5], None)
 
 
-def p_func_var_5(p):  # Should only be used in arrays
+def p_func_var_7(p):  # Should only be used in arrays
     """func_var : ID COLON AMPERSAND array_type"""
 
     dic, _type = global_config.array_type_to_dimension_dict_and_type(p[4])
-    p[0] = IDTuple(p[1], _type, False, True, dic)
+    p[0] = IDTuple(p[1], _type, False, True, dic, None)
 
 
-def p_func_var_6(p):  # Should only be used in arrays
+def p_func_var_8(p):  # Should only be used in arrays
     """func_var : ID COLON AMPERSAND MUTABLE array_type"""
 
     dic, _type = global_config.array_type_to_dimension_dict_and_type(p[5])
-    p[0] = IDTuple(p[1], _type, True, True, dic)
+    p[0] = IDTuple(p[1], _type, True, True, dic, None)
 
 
 def p_func_call_array_var_type_r(p):
@@ -505,21 +525,21 @@ def p_total_array_assignment(p):
     """array_assignment : ID EQUAL expression
     | ID EQUAL array_expression"""
     p[0] = ArrayAssignment(p[1], [], p[3], p.lineno(1), -1)
-    print("total_p_array_assignment")
+    # print("total_p_array_assignment")
 
 
 def p_array_assignment(p):
     """array_assignment : ID array_indexes EQUAL expression
     | ID array_indexes EQUAL array_expression"""
     p[0] = ArrayAssignment(p[1], p[2], p[4], p.lineno(1), -1)
-    print("p_array_assignment")
+    # print("p_array_assignment")
 
 
 # ###########################################ARRAY VARIABLE DECLARATION ###############################################
 def p_array_declaration_1(p):    # TODO array_expression instead of expression
     """array_declaration : LET MUTABLE ID COLON array_type EQUAL expression"""
     p[0] = ArrayDeclaration(p[3], p[5], p[7], True, p.lineno(1), -1)
-    print("p_array_declaration_1")
+    # print("p_array_declaration_1")
 
 
 def p_array_declaration_2(p):
@@ -542,13 +562,13 @@ def p_array_declaration_4(p):
 def p_array_type_r(p):
     """array_type : BRACKET_O array_type SEMICOLON expression BRACKET_C"""
     p[0] = ArrayDefType(True, p[2], p[4])
-    print("p_array_type_r")
+    # print("p_array_type_r")
 
 
 def p_array_type(p):
     """array_type : BRACKET_O variable_type SEMICOLON expression BRACKET_C"""
     p[0] = ArrayDefType(False, p[2], p[4])
-    print("p_array_type")
+    # print("p_array_type")
 
 
 ########################################
@@ -556,13 +576,13 @@ def p_array_type(p):
 def p_array_expression_list(p):
     """array_expression : BRACKET_O expression_list BRACKET_C"""
     p[0] = ArrayExpression(p[2], False, None, p.lineno(1), -1)
-    print("p_array_expression_list")
+    # print("p_array_expression_list")
 
 
 def p_array_expression_expansion(p):
     """array_expression : BRACKET_O expression SEMICOLON expression BRACKET_C"""
     p[0] = ArrayExpression(p[2], True, p[4], p.lineno(1), -1)
-    print("p_array_expression_expansion")
+    # print("p_array_expression_expansion")
 
 
 def p_expression_list_r(p):
@@ -570,14 +590,14 @@ def p_expression_list_r(p):
     | expression_list COMMA array_expression"""
     p[1].append(p[3])
     p[0] = p[1]
-    print("p_expression_list_r")
+    # print("p_expression_list_r")
 
 
 def p_expression_list(p):
     """expression_list : expression
     | array_expression"""
     p[0] = [p[1]]
-    print("p_expression_list")
+    # print("p_expression_list")
 
 #######################################################################################################################
 
@@ -865,25 +885,25 @@ def p_default_case_expr(p):
 def p_if_else_elseif_statement_1_expr(p):
     """if_else_elseif_expr : if_s_expr"""
     p[0] = ConditionalExpression(p[1], p.lineno(1), -1)
-    print("cond expr 1")
+    # print("cond expr 1")
 
 
 def p_if_else_elseif_statement_2_expr(p):
     """if_else_elseif_expr : if_s_expr else_s_expr"""
     p[0] = ConditionalExpression(p[1] + p[2], p.lineno(1), -1)
-    print("cond expr 2")
+    # print("cond expr 2")
 
 
 def p_if_else_elseif_statement_3_expr(p):
     """if_else_elseif_expr : if_s_expr else_ifs_expr"""
     p[0] = ConditionalExpression(p[1] + p[2], p.lineno(1), -1)
-    print("cond expr 3")
+    # print("cond expr 3")
 
 
 def p_if_else_elseif_statement_4_expr(p):
     """if_else_elseif_expr : if_s_expr else_ifs_expr else_s_expr"""
     p[0] = ConditionalExpression(p[1] + p[2] + p[3], p.lineno(1), -1)
-    print("cond expr 4")
+    # print("cond expr 4")
 
 
 def p_if_statement_expr_1(p):
@@ -937,6 +957,7 @@ def p_error(p):
 
     print(f"next token is {parser.token()}")
     print(f"2nd next token is {parser.token()}")
+
     raise SyntacticError(reason, p.lineno, -1)
 
 

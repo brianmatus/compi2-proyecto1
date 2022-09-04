@@ -6,6 +6,7 @@ from returns.ast_return import ASTReturn
 
 from errors.semantic_error import SemanticError
 
+from elements.vector_symbol import VectorSymbol
 from elements.array_symbol import ArraySymbol
 from elements.symbol import Symbol
 
@@ -26,7 +27,12 @@ class VariableReference(Expression):
             global_config.log_semantic_error(error_msg, self.line, self.column)
             raise SemanticError(error_msg, self.line, self.column)
 
-        return ValueTuple(value=the_symbol.value, _type=the_symbol._type, is_mutable=the_symbol.is_mutable)
+        if isinstance(the_symbol, VectorSymbol):
+            return ValueTuple(value=the_symbol.value, _type=the_symbol._type, is_mutable=the_symbol.is_mutable,
+                              content_type=the_symbol.content_type, capacity=the_symbol.capacity)
+
+        return ValueTuple(value=the_symbol.value, _type=the_symbol._type, is_mutable=the_symbol.is_mutable,
+                          content_type=None, capacity=None)
 
     def ast(self) -> ASTReturn:
         return ASTReturn("", -1)

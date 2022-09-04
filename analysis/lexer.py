@@ -138,6 +138,7 @@ def t_STRING_TEXT(t):
     # TODO transform special characters
     r'"[^"]*"'
     t.value = t.value[1:-1]
+    t.value = t.value.replace("\\n", "\n")
     return t
 
 

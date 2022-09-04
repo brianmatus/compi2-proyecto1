@@ -71,7 +71,7 @@ class VectorDeclaration(Instruction):
             raise SemanticError(error_msg, self.line, self.column)
 
         env.save_variable_vector(self._id, ElementType.VECTOR, the_type, level, self.values, self.is_mutable,
-                                 int(capacity.value), self.line, self.column)
+                                 [int(capacity.value)], self.line, self.column)
 
         return ExecReturn(ElementType.BOOL, True, False, False, False)
 

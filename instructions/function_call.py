@@ -55,6 +55,40 @@ class FunctionCallI(Instruction):
             # print(param._type)
             # print(given._type)
 
+            if param._type == ElementType.VECTOR:
+
+                if not global_config.match_pure_vector_deepness(param.dimensions, given.value):
+                    error_msg = f"La función {self._id} fue llamada con un tamaño incorrecto de vector. Arg #{i + 1}"
+                    log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
+                if given.content_type != param.content_type:
+                    error_msg = f"La función {self._id} fue llamada con un tipo incorrecto de argumento (vector)." \
+                                f" Arg #{i + 1}"
+                    log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
+                c = param.is_array and not self.params[i].as_reference
+                d = not param.is_array and self.params[i].as_reference
+
+                if c or d:
+                    error_msg = f"La función {self._id} fue llamada con un array sin ser usado como referencia." \
+                                f" Usa el operador & para pasar un array (ej.: &array)"
+                    log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
+                # Non mutable array was passed as mutable using &mut
+                if param.is_mutable and not given.is_mutable:
+                    print(f'u r not actually mutable, liar!')
+                    error_msg = f"La función {self._id} fue llamada con un array no mutable, como mutable"
+                    log_semantic_error(error_msg, self.line, self.column)
+                    raise SemanticError(error_msg, self.line, self.column)
+
+                intermediate_env.save_variable_vector(param._id, param._type, param.content_type, param.dimensions,
+                                                      given.value, param.is_mutable, given.capacity,
+                                                      self.line, self.column)
+                continue
+
             if param.is_array:
 
                 to_m = param.dimensions.copy()
