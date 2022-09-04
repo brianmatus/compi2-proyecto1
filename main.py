@@ -30,11 +30,12 @@ def start():  # FIXME this should be replaced with frontend sending the code
     f.close()
 
     result: ParseResult = parse_code(input_code)
+    return result
     # print("code result:")
     # print(result)
 
 
-def parse_code(code_string: str) -> ParseResult:
+def parse_code(code_string: str) -> dict:  # -> ParseResult
     # Debug tokenizer
     # lexer.lexer.input(code_string)
     # # Tokenize
@@ -50,6 +51,8 @@ def parse_code(code_string: str) -> ParseResult:
     global_config.lexic_error_list = []
     global_config.syntactic_error_list = []
     global_config.semantic_error_list = []
+    global_config.tmp_symbol_table = []
+    global_config.function_list = {}
     # func list
     global_config.console_output = ""
     try:
@@ -62,20 +65,40 @@ def parse_code(code_string: str) -> ParseResult:
         # already logged, do nothing
 
         global_config.main_environment = Environment(None)
-        return ParseResult(global_config.lexic_error_list,
-                           global_config.syntactic_error_list, global_config.semantic_error_list,
-                           ast_tree='digraph G {\na[label="PARSE ERROR :( (semantic)"]\n}',
-                           console_output=global_config.console_output, symbol_table=[])
+
+
+        return {
+            "console_output": global_config.console_output,
+            "lexic_errors": global_config.lexic_error_list,
+            "syntactic_errors": global_config.syntactic_error_list,
+            "semantic_errors": global_config.semantic_error_list,
+            "symbol_table": []
+        }
+
+
+        # return [str(global_config.lexic_error_list),
+        #                    str(global_config.syntactic_error_list), str(global_config.semantic_error_list),
+        #                    'digraph G {\na[label="PARSE ERROR :( (semantic)"]\n}',
+        #                    global_config.console_output, []]
 
     except SyntacticError as err:
         print("SYNTACTIC ERROR:")
         print(err)
 
         global_config.main_environment = Environment(None)
-        return ParseResult(global_config.lexic_error_list,
-                           global_config.syntactic_error_list, global_config.semantic_error_list,
-                           ast_tree='digraph G {\na[label="PARSE ERROR :( (syntactic)"]\n}',
-                           console_output=global_config.console_output, symbol_table=[])
+
+        return {
+            "console_output": global_config.console_output,
+            "lexic_errors": global_config.lexic_error_list,
+            "syntactic_errors": global_config.syntactic_error_list,
+            "semantic_errors": global_config.semantic_error_list,
+            "symbol_table": []
+        }
+
+        # return [global_config.lexic_error_list,
+        #                    global_config.syntactic_error_list, global_config.semantic_error_list,
+        #                    'digraph G {\na[label="PARSE ERROR :( (syntactic)"]\n}',
+        #                    global_config.console_output, []]
 
 
     except Exception as err:
@@ -86,10 +109,19 @@ def parse_code(code_string: str) -> ParseResult:
         # TODO implement semantic differentiation for missing token / unexpected one (in case i missed one)
 
         global_config.main_environment = Environment(None)
-        return ParseResult(global_config.lexic_error_list,
-                           global_config.syntactic_error_list, global_config.semantic_error_list,
-                           ast_tree='digraph G {\na[label="PARSE ERROR :( (syntactic)"]\n}',
-                           console_output=global_config.console_output, symbol_table=[])
+
+        return {
+            "console_output": global_config.console_output,
+            "lexic_errors": global_config.lexic_error_list,
+            "syntactic_errors": global_config.syntactic_error_list,
+            "semantic_errors": global_config.semantic_error_list,
+            "symbol_table": []
+        }
+
+        # return [global_config.lexic_error_list,
+        #                    global_config.syntactic_error_list, global_config.semantic_error_list,
+        #                    'digraph G {\na[label="PARSE ERROR :( (syntactic)"]\n}',
+        #                    global_config.console_output, []]
 
     # print("#############################################################################")
     # print("#############################################################################")
@@ -146,6 +178,18 @@ def parse_code(code_string: str) -> ParseResult:
         print("-------------------------------------------------------------------------------------------------------")
         print(global_config.console_output)
 
+        return {
+            "console_output": global_config.console_output,
+            "lexic_errors": global_config.lexic_error_list,
+            "syntactic_errors": global_config.syntactic_error_list,
+            "semantic_errors": global_config.semantic_error_list,
+            "symbol_table": generate_symbol_table(instruction_set, "Main")
+        }
+
+        # return [global_config.lexic_error_list, global_config.syntactic_error_list,
+        #                    global_config.semantic_error_list, generate_symbol_table(instruction_set, "Main"),
+        #                    global_config.console_output, ""]
+
     except Exception as err:
         traceback.print_exc()
         print(err)
@@ -169,15 +213,84 @@ def parse_code(code_string: str) -> ParseResult:
         print(global_config.console_output)
 
         global_config.main_environment = Environment(None)
-        return ParseResult(global_config.lexic_error_list,
-                           global_config.syntactic_error_list, global_config.semantic_error_list,
-                           ast_tree=generate_ast_tree(instruction_set),
-                           console_output=global_config.console_output,
-                           symbol_table=generate_symbol_table(instruction_set, "Main"))
+
+        return {
+            "console_output": global_config.console_output,
+            "lexic_errors": global_config.lexic_error_list,
+            "syntactic_errors": global_config.syntactic_error_list,
+            "semantic_errors": global_config.semantic_error_list,
+            "symbol_table": generate_symbol_table(instruction_set, "Main")
+        }
+
+        # return [global_config.lexic_error_list,
+        #                    global_config.syntactic_error_list, global_config.semantic_error_list,
+        #                    generate_ast_tree(instruction_set),
+        #                    global_config.console_output,
+        #                    generate_symbol_table(instruction_set, "Main")]
 
 
 def generate_symbol_table(instruction_set: List[Instruction], env_name: str) -> List[List[str]]:
-    pass  # TODO implement
+    table: List[List[str]] = []
+
+    instruction: Instruction
+    for instruction in instruction_set:
+        match type(instruction).__name__:
+            case "Declaration":
+                table.append([instruction._id, "Variable", instruction._type.name, env_name,
+                              str(instruction.line), str(instruction.column)])
+
+            case "ArrayDeclaration":
+                table.append([instruction._id, "Variable[]", instruction._type.name, env_name,
+                              str(instruction.line), str(instruction.column)])
+
+            case "VectorDeclaration":
+                table.append([instruction._id, "Variable Vec<>", instruction.var_type, env_name,
+                              str(instruction.line), str(instruction.column)])
+
+            case "FunctionDeclaration":
+                table.append([instruction._id, "Function Declaration", instruction.return_type.name, env_name,
+                              str(instruction.line), str(instruction.column)])
+                function_table = generate_symbol_table(instruction.instructions, env_name + "->" + instruction._id)
+                table = table + function_table
+
+            case "Conditional":
+                conditional_id = global_config.random_hex_color_code()
+                for clause in instruction.clauses:
+                    random_id = global_config.random_hex_color_code()
+                    conditional_table = generate_symbol_table(clause.instructions,
+                                                              env_name+"Conditional"+conditional_id+":"+random_id)
+                    table = table + conditional_table
+
+            case "MatchI":
+                conditional_id = global_config.random_hex_color_code()
+                for clause in instruction.clauses:
+                    random_id = global_config.random_hex_color_code()
+                    conditional_table = generate_symbol_table(clause.instructions,
+                                                              env_name + "Match" + conditional_id + ":" + random_id)
+                    table = table + conditional_table
+
+            case "WhileI":
+                while_id = global_config.random_hex_color_code()
+                while_table = generate_symbol_table(instruction.instructions, env_name + "While"+while_id)
+                table = table + while_table
+
+            case "LoopI":
+                loop_id = global_config.random_hex_color_code()
+                loop_table = generate_symbol_table(instruction.instructions, env_name + "While" + loop_id)
+                table = table + loop_table
+
+            case "ForInI":
+                for_id = global_config.random_hex_color_code()
+                table.append([instruction.looper, "Variable", "-", env_name + "->For" + for_id,
+                              str(instruction.line), str(instruction.column)])
+                for_table = generate_symbol_table(instruction.instructions, env_name + "While" + for_id)
+                table = table + for_table
+
+
+    return table
+
+
+
 
 
 def generate_ast_tree(instruction_set: List[Instruction]) -> str:

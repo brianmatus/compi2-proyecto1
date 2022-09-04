@@ -12,6 +12,8 @@ lexic_error_list: List[LexicError] = []
 syntactic_error_list: List[SyntacticError] = []
 semantic_error_list: List[SemanticError] = []
 
+tmp_symbol_table = []
+
 
 ALLOW_NESTED_VARIABLE_OVERRIDE = True
 unique_counter = 0
@@ -247,21 +249,21 @@ def log_to_console(txt: str):
 
 def log_lexic_error(foreign: str, row: int, column: int):
     global console_output
-    lexic_error_list.append(LexicError(f'Signo <{foreign}> no reconocido', row, column))
+    lexic_error_list.append(str(LexicError(f'Signo <{foreign}> no reconocido', row, column)))
     print(f'Logged Lexic Error:{row}-{column} -> Signo <{foreign}> no reconocido')
     console_output += f'[row:{row},column:{column}]Error Lexico: <{foreign} no reconocido\n'
 
 
 def log_syntactic_error(reason: str, row: int, column: int):
     global console_output
-    syntactic_error_list.append(SyntacticError(reason, row, column))
+    syntactic_error_list.append(str(SyntacticError(reason, row, column)))
     print(f'Logged Syntactic Error:{row}-{column} -> {reason}')
     console_output += f'[row:{row},column:{column}]Error Sintáctico:{reason} \n'
 
 
 def log_semantic_error(reason: str, row: int, column: int):
     global console_output
-    semantic_error_list.append(SemanticError(reason, row, column))
+    semantic_error_list.append(str(SemanticError(reason, row, column)))
     print(f'Logged Semantic Error:{row}-{column} -> {reason}')
     console_output += f'[row:{row},column:{column}]Error Semántico:{reason}\n'
 
