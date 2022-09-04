@@ -28,8 +28,13 @@ def generate_symbol_table(instruction_set, env_name: str) -> List[List[str]]:
     for instruction in instruction_set:
         match type(instruction).__name__:
             case "Declaration":
-                table.append([instruction._id, "Variable", instruction._type.name, env_name,
-                              str(instruction.line), str(instruction.column)])
+                if instruction._type is not None:
+                    table.append([instruction._id, "Variable", instruction._type.name, env_name,
+                                  str(instruction.line), str(instruction.column)])
+                else:
+                    table.append([instruction._id, "Variable", "-", env_name,
+                                  str(instruction.line), str(instruction.column)])
+
 
             case "ArrayDeclaration":
                 if instruction.var_type is not None:
@@ -41,7 +46,7 @@ def generate_symbol_table(instruction_set, env_name: str) -> List[List[str]]:
                                   str(instruction.line), str(instruction.column)])
 
             case "VectorDeclaration":
-                table.append([instruction._id, "Variable Vec<>", instruction.var_type, env_name,
+                table.append([instruction._id, "Variable Vec<>", instruction.var_type.name, env_name,
                               str(instruction.line), str(instruction.column)])
 
             case "FunctionDeclaration":
