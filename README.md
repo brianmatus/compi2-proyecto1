@@ -3,7 +3,7 @@
 
 ## Dedicatoria
 ##### M&A:
-Por inspirarme a seguir adelante y mejorar, aun cuando no estas conmigo.
+Por inspirarme a seguir adelante y mejorar, aún cuando no estás conmigo.
 <br />Aún te busco en todas partes
 <br />ruinas de tu voz se asoman en mis oídos.
 <br />Aún te fumo por la noche,
