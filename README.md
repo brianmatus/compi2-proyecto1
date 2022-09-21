@@ -24,13 +24,4 @@ DB-RUST es un lenguaje basado en Rust para la utilizacion de bases de datos
 - No termine modulos ni structs :(
 
 
-### Dedicatoria 2, La bandita:
-- Tapendejo (Tamalardo)
-- Fede
-- Sekage
-- Skepdic
-- Vicky
-- Shabi
-- Frikitonga
-- La Zafi
-- ElPompis
+### Dedicatoria 2, La bandita, los tkm
